@@ -1,0 +1,45 @@
+# -*- perl -*-
+
+@ScripActions = (
+
+    { Name        => 'Extract Custom Field Values',          # loc
+      Description => 'extract cf-values out of a message',    # loc
+      ExecModule  => 'ExtractCustomFieldValues' }
+
+);
+
+@Templates = (
+    {  Queue       => '0',
+       Name        => 'CustomFieldScannerExample',                     # loc
+       Description => 'Example Template for ExtractCustomFieldValues', # loc
+       Content     => '# Syntax:
+# cf-name | Headername or "Body" | MatchString(re) | Postcmd | Options
+#
+# allowed Options:
+# q - dont record a transaction for adding the CFV
+#
+# examples:
+# 1. put the content of Header X-MI-Test into the cf testcf
+# testcf|X-MI-Test|.*|
+#
+# 2. scan body for Host:name and put name into bodycf
+# bodycf|Body|Host:\s*(\w+)|
+#
+# 3. scan the Header X-MI-IP for an IP-Adresse and get the hostname out of it
+# Hostname|X-MI-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($_) = gethostbyaddr(inet_aton($_),AF_INET);
+
+# scan X-Mailer into cf Mailer
+mailer|X-Mailer|.*|
+
+# scan the Header X-REMOTE-IP for an IP-Address and get the hostname out of it
+host|X-REMOTE-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($_) = gethostbyaddr(inet_aton($_),AF_INET); $_ = "$_ (remote-ip)";
+
+# scan the CC-Header for an many mail addresses and add them to a multivalued cf
+# !this is untested. If parsedCCs is a multi value CF, then this should yield to
+# separate values for all emailadresses found
+parsedCCs|CC|.*|s/^\s+//; s/\s+$//;
+'
+    }
+);
+
+1;

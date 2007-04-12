@@ -1,0 +1,10 @@
+name: RT-Action-ExtractCustomFieldValues
+version: 1.2
+abstract: RT Action-ExtractCustomFieldValues Extension
+license: unknown
+distribution_type: module
+no_index:
+  directory:
+    - etc
+    - inc
+generated_by: Module::Install version 0.36

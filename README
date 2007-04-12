@@ -1,0 +1,82 @@
+CONTACT:
+
+This is version 5 of ExtractCustomFieldValue which is a
+contribution to the RT System <http://www.bestpractical.com/rt/>, as
+modified by Best Practical for customer use.
+
+All bug reports and support requests should be referred to Best
+Practical <sales@bestpractical.com>.
+
+ACKNOWLEDGEMENT:
+
+ExtractCustomFieldValue was originally written by Dirk Pape
+<pape@inf.fu-berlin.de>.
+
+PURPOSE:
+
+ExtractCustomFieldValue consists of a new ScripAction
+"ExtractCustomFieldValue", which can be used to scan incoming requests
+to set values of custom fields.
+
+INSTALL:
+
+    perl Makefile.PL
+    make install
+    make initdb
+
+USE:
+
+To use the ScripAction you have to create a Template and a Scrip in
+RT. The Template consists of the lines which control the scanner. All
+non comment lines are of the following format:
+
+<cf-name>|<Headername>|<MatchString>|<Postcmd>|<Options>
+
+where
+
+<cf-name>     is the name of a custom field (must be created in RT)
+<Headername>  is either a Name of an email header or "body" to scan the
+              body of the email
+<MatchString> is a reg. expr. to find a match in the header or body
+              if the MatchString matches a comma separated list
+	      and the cf is a multi value cf then each item in the
+	      list is added as a separate value
+<Postcmd>     is a perl command to be evaluated on $_, where $_ is either
+              $1 or $& from the match performed with <MatchString>
+<Options>     is a string of letters which may control some aspects.
+	      In this time the only letter with a meaning is "q":
+	      q - (quiet) do not record a transaction when adding a CFV
+
+you can change the Separator string (initially "\|") during the template with a line
+
+Separator=<anyregexp>
+
+e.g. Separator=\|--\|
+
+this may be necessary, if you want to use a "|" in one of the patterns in
+the controlling lines.
+
+an example template with some further explanations is installed on
+"make install" or "make insert-template".
+
+
+CHANGES:
+
+Best Practical local:
+* Converted to RTx module.
+
+1.2b1
+added support for multiple value custom fields (values sep. by ",")
+(Thanks to Steven Turner, MIT)
+
+1.1b3
+corrected a typo, which reappeared from a temporary version
+
+1.1b2
+added Command to change the Separator througout the template
+
+1.1b1
+added Option "q" for not recording transactions
+
+1.0b2
+fixed a bug, when called for a transaction without Attachment
