@@ -54,10 +54,12 @@ sub Commit {
                        CustomField => $cf,
                        Match       => $match );
         } else {
-            ProcessMatch( PostEdit => $PostEdit, 
-                          Ticket   => $Ticket,
-                          Options  => $Options,
-                          Match    => $match );
+            ProcessMatch( PostEdit    => $PostEdit, 
+                          Ticket      => $Ticket,
+                          Options     => $Options,
+                          Transaction => $Transaction,
+                          Attachment  => $FirstAttachment,
+                          Match       => $match );
         }
     }
     return(1);
@@ -83,20 +85,20 @@ sub LoadCF {
 sub FindMatch {
     my %args = @_;
 
-    my $found = 0;
     my $match = '';
     if ($args{Field} =~ /^body$/i) {
-        $RT::Logger->debug("look for cf in Body");
-        $found = ($args{FirstAttachment}->Content =~ /$args{Match}/m);
-        $match = $1||$&;
+        $RT::Logger->debug("look for match in Body");
+        if ($args{FirstAttachment}->Content =~ /$args{Match}/m) {
+            $match = $1;
+            $RT::Logger->debug("matched value: $match");
+        }
     } else {
-        $RT::Logger->debug("look for cf in Header $args{Field}");
-        $found = ($args{FirstAttachment}->GetHeader("$args{Field}") =~ /$args{Match}/);
-        $match = $1||$&;
+        $RT::Logger->debug("look for match in Header $args{Field}");
+        if ($args{FirstAttachment}->GetHeader("$args{Field}") =~ /$args{Match}/) {
+            $match = $1;
+            $RT::Logger->debug("matched value: $match");
+        }
     }
-
-
-    $RT::Logger->debug("matched value: $match") if $found;
 
     return $match;
 }
@@ -131,11 +133,13 @@ sub ProcessCF {
 sub ProcessMatch {
     my %args = @_;
     my $Ticket = $args{Ticket};
+    my $Transaction = $args{Transaction};
+    my $FirstAttachment = $args{Attachment};
 
     if ($args{Match} && $args{PostEdit}) {
         local $_ = $args{Match}; # backwards compatibility
         eval($args{PostEdit});
-        $RT::Logger->debug("transformed ($args{PostEdit}) value: $value");
+        $RT::Logger->debug("ran code $args{PostEdit} $@");
     }
 }
 
