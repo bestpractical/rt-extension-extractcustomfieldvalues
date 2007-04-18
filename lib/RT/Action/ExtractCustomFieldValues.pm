@@ -5,7 +5,7 @@ use strict;
 use vars qw/@ISA/;
 @ISA=qw(RT::Action::Generic);
 
-our $VERSION = 1.2;
+our $VERSION = 1.3;
 
 sub Describe  {
   my $self = shift;
@@ -17,26 +17,57 @@ sub Prepare {
 }
 
 sub Commit {
-  my $self = shift;
-  my $Transaction = $self->TransactionObj;
-  my $FirstAttachment = $Transaction->Attachments->First;
-  unless ( $FirstAttachment ) { return 1; }
+    my $self = shift;
+    my $Transaction = $self->TransactionObj;
+    my $FirstAttachment = $Transaction->Attachments->First;
+    unless ( $FirstAttachment ) { return 1; }
 
-  my $Ticket = $self->TicketObj;
-  my $Content = $self->TemplateObj->Content;
-  my $Queue = $Ticket->QueueObj->Id;
-  my $Separator = '\|';
+    my $Ticket = $self->TicketObj;
+    my $Content = $self->TemplateObj->Content;
+    my $Queue = $Ticket->QueueObj->Id;
+    my $Separator = '\|';
 
-  my @lines = split(/[\n\r]+/,$Content);
-  for (@lines) {
-    chomp;
-    next if (/^#/);
-    next if (/^\s*$/);
-    if (/^Separator=(.*)$/) {
-      $Separator=$1;
-      next;
+    my @lines = split(/[\n\r]+/,$Content);
+    for (@lines) {
+        chomp;
+        next if (/^#/);
+        next if (/^\s*$/);
+        if (/^Separator=(.*)$/) {
+            $Separator=$1;
+            next;
+        }
+        my ($CustomFieldName,$InspectField,$MatchString,$PostEdit,$Options) = split(/$Separator/);
+
+        my $cf;
+        if ($CustomFieldName) {
+            $cf = LoadCF( Field => $CustomFieldName, Queue => $Queue );
+        }
+
+        my $match = FindMatch( Field           => $InspectField, 
+                               Match           => $MatchString,
+                               FirstAttachment => $FirstAttachment );
+
+        if ($cf) {
+            ProcessCF( PostEdit    => $PostEdit,
+                       Ticket      => $Ticket,
+                       Options     => $Options,
+                       CustomField => $cf,
+                       Match       => $match );
+        } else {
+            ProcessMatch( PostEdit => $PostEdit, 
+                          Ticket   => $Ticket,
+                          Options  => $Options,
+                          Match    => $match );
+        }
     }
-    my ($CustomFieldName,$InspectField,$MatchString,$PostEdit,$Options) = split(/$Separator/);
+    return(1);
+}
+
+sub LoadCF {
+    my %args = @_;
+    my $CustomFieldName = $args{Field};
+    my $Queue = $args{Queue};
+
     $RT::Logger->debug("load cf $CustomFieldName");
     my $cf = new RT::CustomField($RT::SystemUser);
     my ($id,$msg) = $cf->LoadByNameAndQueue (Name=>"$CustomFieldName", Queue=>$Queue);
@@ -44,45 +75,57 @@ sub Commit {
       ($id,$msg) = $cf->LoadByNameAndQueue (Name=>"$CustomFieldName", Queue=>0);
     }
     $RT::Logger->debug("load cf done: $id $msg");
-    if ($id) {
-      my $found = 0;
-      if ($InspectField =~ /^body$/i) {
-        $RT::Logger->debug("look for cf in Body");
-        $found = ($FirstAttachment->Content =~ /$MatchString/m);
-        if ($1) { $_ = $1; } else { $_ = $&; }
-      } else {
-        $RT::Logger->debug("look for cf in Header $InspectField");
-        $found = ($FirstAttachment->GetHeader("$InspectField") =~ /$MatchString/);
-        if ($1) { $_ = $1; } else { $_ = $&; }
-      }
-      if ($found) {
-        $RT::Logger->debug("matched value: $_");
-      } else {
-        $_ = "";
-      }
 
-      my @values=();
-      if ( $cf->SingleValue()) {
-         push @values, $_;
-      } else {
-         @values = split(',', $_);
-      }
-      
-      foreach (@values) {
-         if ($_ && $PostEdit) {
-            eval ($PostEdit);
-            $RT::Logger->debug("transformed ($PostEdit) value: $_");
-         }
-         if ($_) {
-            $RT::Logger->debug("found value for cf: $_");
-            ($id,$msg) = $Ticket->AddCustomFieldValue
-                (Field => $cf, Value => $_, RecordTransaction => $Options =~ /q/ ? 0 : 1);
-            $RT::Logger->info("CustomFieldValue ($CustomFieldName,$_) added: $id $msg");
-         }
-      }
+    return $cf;
+
+}
+
+sub FindMatch {
+    my %args = @_;
+
+    my $found = 0;
+    my $match = '';
+    if ($args{Field} =~ /^body$/i) {
+        $RT::Logger->debug("look for cf in Body");
+        $found = ($args{FirstAttachment}->Content =~ /$args{Match}/m);
+        $match = $1||$&;
+    } else {
+        $RT::Logger->debug("look for cf in Header $args{Field}");
+        $found = ($args{FirstAttachment}->GetHeader("$args{Field}") =~ /$args{Match}/);
+        $match = $1||$&;
     }
-  }
-  return(1);
+
+
+    $RT::Logger->debug("matched value: $match") if $found;
+
+    return $match;
+}
+
+sub ProcessCF {
+    my %args = @_;
+
+    my @values=();
+    if ($args{CustomField}->SingleValue()) {
+        push @values, $args{Match};
+    } else {
+        @values = split(',', $args{Match});
+    }
+
+    foreach my $value (@values) {
+        if ($value && $args{PostEdit}) {
+            local $_ = $value; # backwards compatibility
+            eval($args{PostEdit});
+            $RT::Logger->debug("transformed ($args{PostEdit}) value: $value");
+        }
+        if ($value) {
+            $RT::Logger->debug("found value for cf: $value");
+            my ($id,$msg) = $args{Ticket}->AddCustomFieldValue
+                                             ( Field => $args{CustomField}, 
+                                               Value => $value , 
+                                               RecordTransaction => $args{Options} =~ /q/ ? 0 : 1);
+            $RT::Logger->info("CustomFieldValue (".$args{CustomField}->Name.",$value) added: $id $msg");
+        }
+    }
 }
 
 1;
