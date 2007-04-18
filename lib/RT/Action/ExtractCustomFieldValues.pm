@@ -128,4 +128,15 @@ sub ProcessCF {
     }
 }
 
+sub ProcessMatch {
+    my %args = @_;
+    my $Ticket = $args{Ticket};
+
+    if ($args{Match} && $args{PostEdit}) {
+        local $_ = $args{Match}; # backwards compatibility
+        eval($args{PostEdit});
+        $RT::Logger->debug("transformed ($args{PostEdit}) value: $value");
+    }
+}
+
 1;
