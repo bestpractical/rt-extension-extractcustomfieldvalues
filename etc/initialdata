@@ -42,7 +42,7 @@ parsedCCs|CC|.*|s/^\s+//; s/\s+$//;
 # Looks for the email field in the body of the email
 # Loads up that user and makes them privileged
 # The blank first field means the automatic CustomField setting
-# isn't invoked.
+# is not invoked.
 |Body|Email:\s*(.+)$|my $u = RT::User->new($RT::SystemUser); $u->LoadByEmail($_); $u->SetPrivileged(1)|
 '
     }
