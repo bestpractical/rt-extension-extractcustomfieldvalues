@@ -38,6 +38,12 @@ host|X-REMOTE-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($_) = gethostbyaddr(inet_aton($
 # !this is untested. If parsedCCs is a multi value CF, then this should yield to
 # separate values for all emailadresses found
 parsedCCs|CC|.*|s/^\s+//; s/\s+$//;
+
+# Looks for the email field in the body of the email
+# Loads up that user and makes them privileged
+# The blank first field means the automatic CustomField setting
+# isn't invoked.
+|Body|Email:\s*(.+)$|my $u = RT::User->new($RT::SystemUser); $u->LoadByEmail($_); $u->SetPrivileged(1)|
 '
     }
 );
