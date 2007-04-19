@@ -89,13 +89,13 @@ sub FindMatch {
     if ($args{Field} =~ /^body$/i) {
         $RT::Logger->debug("look for match in Body");
         if ($args{FirstAttachment}->Content =~ /$args{Match}/m) {
-            $match = $1;
+            $match = $1||$&;
             $RT::Logger->debug("matched value: $match");
         }
     } else {
         $RT::Logger->debug("look for match in Header $args{Field}");
         if ($args{FirstAttachment}->GetHeader("$args{Field}") =~ /$args{Match}/) {
-            $match = $1;
+            $match = $1||$&;
             $RT::Logger->debug("matched value: $match");
         }
     }
