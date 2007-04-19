@@ -1,0 +1,23 @@
+1.6
+Added support for running code on a match without updating a custom field.
+Refactor the Action code to handle this case.
+
+Best Practical local:
+* Converted to RTx module.
+
+1.2b1
+added support for multiple value custom fields (values sep. by ",")
+(Thanks to Steven Turner, MIT)
+
+1.1b3
+corrected a typo, which reappeared from a temporary version
+
+1.1b2
+added Command to change the Separator througout the template
+
+1.1b1
+added Option "q" for not recording transactions
+
+1.0b2
+fixed a bug, when called for a transaction without Attachment
+

@@ -35,6 +35,10 @@ non comment lines are of the following format:
 where
 
 <cf-name>     is the name of a custom field (must be created in RT)
+              If this field is blank, the match will be run and Postcmd
+              will be executed, but no custom field will be updated.
+              Use this if you need to execute other RT code based on 
+              your match.
 <Headername>  is either a Name of an email header or "body" to scan the
               body of the email
 <MatchString> is a reg. expr. to find a match in the header or body
@@ -59,24 +63,6 @@ the controlling lines.
 an example template with some further explanations is installed on
 "make install" or "make insert-template".
 
-
-CHANGES:
-
-Best Practical local:
-* Converted to RTx module.
-
-1.2b1
-added support for multiple value custom fields (values sep. by ",")
-(Thanks to Steven Turner, MIT)
-
-1.1b3
-corrected a typo, which reappeared from a temporary version
-
-1.1b2
-added Command to change the Separator througout the template
-
-1.1b1
-added Option "q" for not recording transactions
-
-1.0b2
-fixed a bug, when called for a transaction without Attachment
+Your new Scrip should use a ScripAction of 'Extract Custom Field Values' with
+a Template pointing to your code (see the CustomFieldScannerExample template
+for examples and further documentation);
