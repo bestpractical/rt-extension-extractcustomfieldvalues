@@ -1,4 +1,4 @@
-#line 1 "inc/Module/Install/RTx/Factory.pm - /opt/perl/lib/site_perl/5.8.5/Module/Install/RTx/Factory.pm"
+#line 1
 package Module::Install::RTx::Factory;
 use Module::Install::Base; @ISA = qw(Module::Install::Base);
 
