@@ -2,8 +2,9 @@ package RT::Action::ExtractCustomFieldValues;
 require RT::Action::Generic;
 
 use strict;
-use vars qw/@ISA/;
-@ISA=qw(RT::Action::Generic);
+use warnings;
+
+use base qw(RT::Action::Generic);
 
 our $VERSION = 1.3;
 
