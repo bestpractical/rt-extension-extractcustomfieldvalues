@@ -49,12 +49,15 @@ sub Commit {
                                FirstAttachment => $FirstAttachment );
 
         my %processing_args = (
-            PostEdit    => $PostEdit,
+            CustomField => $cf,
+            Match       => $match,
+
             Ticket      => $Ticket,
-            Options     => $Options,
             Transaction => $Transaction,
             Attachment  => $FirstAttachment,
-            Match       => $match,
+
+            PostEdit    => $PostEdit,
+            Options     => $Options,
         );
 
         if ( $cf ) {
