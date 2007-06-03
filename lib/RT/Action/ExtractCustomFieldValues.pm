@@ -48,19 +48,19 @@ sub Commit {
                                Match           => $MatchString,
                                FirstAttachment => $FirstAttachment );
 
-        if ($cf) {
-            ProcessCF( PostEdit    => $PostEdit,
-                       Ticket      => $Ticket,
-                       Options     => $Options,
-                       CustomField => $cf,
-                       Match       => $match );
+        my %processing_args = (
+            PostEdit    => $PostEdit,
+            Ticket      => $Ticket,
+            Options     => $Options,
+            Transaction => $Transaction,
+            Attachment  => $FirstAttachment,
+            Match       => $match,
+        );
+
+        if ( $cf ) {
+            ProcessCF( %processing_args );
         } else {
-            ProcessMatch( PostEdit    => $PostEdit, 
-                          Ticket      => $Ticket,
-                          Options     => $Options,
-                          Transaction => $Transaction,
-                          Attachment  => $FirstAttachment,
-                          Match       => $match );
+            ProcessMatch( %processing_args );
         }
     }
     return(1);
