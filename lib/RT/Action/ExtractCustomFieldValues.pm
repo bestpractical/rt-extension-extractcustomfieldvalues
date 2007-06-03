@@ -117,20 +117,20 @@ sub ProcessCF {
         @values = split(',', $args{Match});
     }
 
-    foreach my $value (@values) {
-        if ($value && $args{PostEdit}) {
+    foreach my $value (grep defined && length, @values) {
+        if ( $args{PostEdit} ) {
             local $_ = $value; # backwards compatibility
             eval($args{PostEdit});
             $RT::Logger->debug("transformed ($args{PostEdit}) value: $value");
         }
-        if ($value) {
-            $RT::Logger->debug("found value for cf: $value");
-            my ($id,$msg) = $args{Ticket}->AddCustomFieldValue
-                                             ( Field => $args{CustomField}, 
-                                               Value => $value , 
-                                               RecordTransaction => $args{Options} =~ /q/ ? 0 : 1);
-            $RT::Logger->info("CustomFieldValue (".$args{CustomField}->Name.",$value) added: $id $msg");
-        }
+        next unless defined $value && length $value;
+
+        $RT::Logger->debug("found value for cf: $value");
+        my ($id,$msg) = $args{Ticket}->AddCustomFieldValue
+                                         ( Field => $args{CustomField}, 
+                                           Value => $value , 
+                                           RecordTransaction => $args{Options} =~ /q/ ? 0 : 1);
+        $RT::Logger->info("CustomFieldValue (".$args{CustomField}->Name.",$value) added: $id $msg");
     }
 }
 
