@@ -75,12 +75,16 @@ sub LoadCF {
     my $Queue = $args{Queue};
 
     $RT::Logger->debug("load cf $CustomFieldName");
-    my $cf = new RT::CustomField($RT::SystemUser);
-    my ($id,$msg) = $cf->LoadByNameAndQueue (Name=>"$CustomFieldName", Queue=>$Queue);
-    if (! $id) {
-      ($id,$msg) = $cf->LoadByNameAndQueue (Name=>"$CustomFieldName", Queue=>0);
+    my $cf = RT::CustomField->new( $RT::SystemUser );
+    $cf->LoadByNameAndQueue( Name => $CustomFieldName, Queue => $Queue );
+    $cf->LoadByNameAndQueue( Name => $CustomFieldName, Queue => 0 );
+        unless $cf->id;
+
+    if ( $cf->id ) {
+        $RT::Logger->debug("load cf done: $id");
+    } else {
+        $RT::Logger->error("couldn't load cf $CustomFieldName");
     }
-    $RT::Logger->debug("load cf done: $id $msg");
 
     return $cf;
 
