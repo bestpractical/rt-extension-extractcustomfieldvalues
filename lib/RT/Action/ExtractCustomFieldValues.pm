@@ -124,7 +124,9 @@ sub ProcessCF {
     foreach my $value (grep defined && length, @values) {
         if ( $args{PostEdit} ) {
             local $_ = $value; # backwards compatibility
+            local $@;
             eval($args{PostEdit});
+            $RT::Logger->error("$@") if $@;
             $RT::Logger->debug("transformed ($args{PostEdit}) value: $value");
         }
         next unless defined $value && length $value;
@@ -146,7 +148,9 @@ sub ProcessMatch {
 
     if ($args{Match} && $args{PostEdit}) {
         local $_ = $args{Match}; # backwards compatibility
+        local $@;
         eval($args{PostEdit});
+        $RT::Logger->error("$@") if $@;
         $RT::Logger->debug("ran code $args{PostEdit} $@");
     }
 }
