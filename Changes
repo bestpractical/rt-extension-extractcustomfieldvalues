@@ -1,3 +1,8 @@
+1.7
+Minor code cleanups
+More logging
+Warnings
+
 1.6
 Added support for running code on a match without updating a custom field.
 Refactor the Action code to handle this case.
