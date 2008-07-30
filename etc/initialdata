@@ -26,24 +26,24 @@
 # bodycf|Body|Host:\s*(\w+)|
 #
 # 3. scan the Header X-MI-IP for an IP-Adresse and get the hostname out of it
-# Hostname|X-MI-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($_) = gethostbyaddr(inet_aton($_),AF_INET);
+# Hostname|X-MI-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($value) = gethostbyaddr(inet_aton($value),AF_INET);
 
 # scan X-Mailer into cf Mailer
 mailer|X-Mailer|.*|
 
 # scan the Header X-REMOTE-IP for an IP-Address and get the hostname out of it
-host|X-REMOTE-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($_) = gethostbyaddr(inet_aton($_),AF_INET); $_ = "$_ (remote-ip)";
+host|X-REMOTE-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($value) = gethostbyaddr(inet_aton($value),AF_INET); $value = "$value (remote-ip)";
 
 # scan the CC-Header for an many mail addresses and add them to a multivalued cf
 # !this is untested. If parsedCCs is a multi value CF, then this should yield to
 # separate values for all emailadresses found
-parsedCCs|CC|.*|s/^\s+//; s/\s+$//;
+parsedCCs|CC|.*|$value =~ s/^\s+//; $value =~ s/\s+$//;
 
 # Looks for the email field in the body of the email
 # Loads up that user and makes them privileged
 # The blank first field means the automatic CustomField setting
 # is not invoked.
-|Body|Email:\s*(.+)$|my $u = RT::User->new($RT::SystemUser); $u->LoadByEmail($_); $u->SetPrivileged(1)|
+|Body|Email:\s*(.+)$|my $u = RT::User->new($RT::SystemUser); $u->LoadByEmail($value); $u->SetPrivileged(1)|
 '
     }
 );

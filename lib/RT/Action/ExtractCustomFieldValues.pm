@@ -123,7 +123,6 @@ sub ProcessCF {
 
     foreach my $value (grep defined && length, @values) {
         if ( $args{PostEdit} ) {
-            local $_ = $value; # backwards compatibility
             local $@;
             eval($args{PostEdit});
             $RT::Logger->error("$@") if $@;
