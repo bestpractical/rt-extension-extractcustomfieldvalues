@@ -96,8 +96,10 @@ sub FindMatch {
     my $match = '';
     if ($args{Field} =~ /^body$/i) {
         $RT::Logger->debug("look for match in Body");
-        if ($args{FirstAttachment}->Content =~ /$args{Match}/m) {
-            $match = $1||$&;
+        if (   $args{FirstAttachment}->Content
+            && $args{FirstAttachment}->Content =~ /$args{Match}/m )
+        {
+            $match = $1 || $&;
             $RT::Logger->debug("matched value: $match");
         }
     } else {
