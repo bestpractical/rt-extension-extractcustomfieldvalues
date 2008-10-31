@@ -16,4 +16,4 @@ no_index:
     - var
     - inc
     - t
-version: 1.7
+version: 1.8

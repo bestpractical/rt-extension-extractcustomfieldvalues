@@ -14,27 +14,28 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 d7da5a042d07f325ba6abe2af861df78be06e507 MANIFEST
-SHA1 64557757b2749c7a9dc0d75ceca870980cc8bf80 META.yml
+SHA1 092ea5763f1dd906790b931f60e6b0f130b184f8 Changes
+SHA1 0c6518956ed0ca1fd45328c264e6207687a30c8e MANIFEST
+SHA1 4551191815afe1e1d7236a1efdcbb0532b0788dd META.yml
 SHA1 478a1a8f886df5109348d6c3842f48f8b748e8b4 Makefile.PL
-SHA1 d607ecc9939af1ce1c671896d4867b9ea2b2a5fc README
-SHA1 34cda19394191408bf13661dc6b838d7e5c3f44f etc/initialdata
-SHA1 39a4e9b687ad82decde3e8be9cd6d44456594912 inc/Module/Install.pm
-SHA1 22269ae76aaa340f9646cac3d0f80229a850264f inc/Module/Install/Base.pm
-SHA1 cc684a85bdcfe209a42d4cb9bf9820f3475ffae8 inc/Module/Install/Can.pm
-SHA1 19a7a85a16d8eb3cd8bee74219971e48543ecd4f inc/Module/Install/Fetch.pm
-SHA1 674335131c759febb83e1b3b779ce9a76200e009 inc/Module/Install/Makefile.pm
-SHA1 21afb2c6416e17560a20ff93bc12851faacb7d88 inc/Module/Install/Metadata.pm
-SHA1 5e27435a29286ae50a02c23c6e5c6da7e5a051b4 inc/Module/Install/RTx.pm
-SHA1 19868bcb956c472d2436eef99fe51a647554b61c inc/Module/Install/RTx/Factory.pm
-SHA1 bd5d72fdd6422e3dad265204ffcd67333f25fd66 inc/Module/Install/Win32.pm
-SHA1 4c6cabfbdf18bd68e0cd8d16f4981e08dac048f3 inc/Module/Install/WriteAll.pm
-SHA1 d0ba2e880bd949cc6f77bf05161728f42832d32d lib/RT/Action/ExtractCustomFieldValues.pm
-SHA1 075a8c8c44a3bb0158984bc5eb831774605ddb57 lib/RT/Extension/ExtractCustomFieldValues.pm
+SHA1 7630a0f5c1303a30b300bf9a39cd2bdba6d9a717 README
+SHA1 d7850564c1efe87684ead005746a709eb19d5545 etc/initialdata
+SHA1 7e2cfa1b9efe0d502ee57717649c90ba4bd28ba9 inc/Module/Install.pm
+SHA1 6e1392d80a0f239eecd5664f7f21f922cedb9329 inc/Module/Install/Base.pm
+SHA1 f69417fe831d9cc22a78f00a617afadceade4d81 inc/Module/Install/Can.pm
+SHA1 c61d02895330310048bf388881b5e2e064031561 inc/Module/Install/Fetch.pm
+SHA1 54fcbed19232ec959bb17cfb4410599afc7f0779 inc/Module/Install/Makefile.pm
+SHA1 7d3be9b158e37b2b2c22084740099955623b1d56 inc/Module/Install/Metadata.pm
+SHA1 4c845c66385929c9d080228ddf2e730066b310d3 inc/Module/Install/RTx.pm
+SHA1 449e998bb26b566ce352948ae08906f3448ebcba inc/Module/Install/RTx/Factory.pm
+SHA1 0a8b66180229ba2f9deaea1fedd0aacf7a7ace6b inc/Module/Install/Win32.pm
+SHA1 d3352eb33fe43a5f3ead513f645224fe34d73bc9 inc/Module/Install/WriteAll.pm
+SHA1 206c992e7647fe893306eadc0f94ffb428c63146 lib/RT/Action/ExtractCustomFieldValues.pm
+SHA1 4ed8e4cf03ae9b2d3698502fdd946c72bd319a70 lib/RT/Extension/ExtractCustomFieldValues.pm
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (Darwin)
+Version: GnuPG v2.0.9 (GNU/Linux)
 
-iD8DBQFGHnQAEi9d9xCOQEYRAl7AAKDJzMulrqbPQ/Byxz+rxlhV9UKiYACglByk
-hUXvMTSYgVs3XFgqRcesAGM=
-=In5+
+iEYEARECAAYFAkkLQiMACgkQMflWJZZAbqDbBQCgtKVsyjJDuas0baCCUEGo1urN
+ux0An3VO7QwagVZT8bVXeOjce4hMzj80
+=TNIa
 -----END PGP SIGNATURE-----
