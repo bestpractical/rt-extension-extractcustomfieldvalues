@@ -1,7 +1,7 @@
 CONTACT:
 
-This is version 5 of ExtractCustomFieldValue which is a
-contribution to the RT System <http://www.bestpractical.com/rt/>, as
+This is version 1.9 of RT::Extension::ExtractCustomFieldValues, which
+is a contribution to RT <http://www.bestpractical.com/rt/>, as
 modified by Best Practical for customer use.
 
 All bug reports and support requests should be referred to Best
@@ -9,13 +9,13 @@ Practical <sales@bestpractical.com>.
 
 ACKNOWLEDGEMENT:
 
-ExtractCustomFieldValue was originally written by Dirk Pape
+ExtractCustomFieldValues was originally written by Dirk Pape
 <pape@inf.fu-berlin.de>.
 
 PURPOSE:
 
-ExtractCustomFieldValue consists of a new ScripAction
-"ExtractCustomFieldValue", which can be used to scan incoming requests
+ExtractCustomFieldValues consists of a new ScripAction
+"ExtractCustomFieldValues", which can be used to scan incoming emails
 to set values of custom fields.
 
 INSTALL:
@@ -24,15 +24,21 @@ INSTALL:
     make install
     make initdb
 
+When using this extension with RT 3.8, you will need to add
+"RT::Extension::ExtractCustomFieldValues" to the Plugins
+configuration:
+
+    Set( @Plugins, qw(RT::Extension::ExtractCustomFieldValues) );
+
 USE:
 
-To use the ScripAction you have to create a Template and a Scrip in
-RT. The Template consists of the lines which control the scanner. All
-non comment lines are of the following format:
+To use the ScripAction, create a Template and a Scrip in RT. The
+Template consists of the lines which control the scanner. All
+non-comment lines are of the following format:
 
 <cf-name>|<Headername>|<MatchString>|<Postcmd>|<Options>
 
-where
+where:
 
 <cf-name>     is the name of a custom field (must be created in RT)
               If this field is blank, the match will be run and Postcmd
@@ -43,24 +49,28 @@ where
               body of the email
 <MatchString> is a reg. expr. to find a match in the header or body
               if the MatchString matches a comma separated list
-	      and the cf is a multi value cf then each item in the
-	      list is added as a separate value
+              and the cf is a multi value cf then each item in the
+              list is added as a separate value
 <Postcmd>     is a perl command to be evaluated on $_, where $_ is either
               $1 or $& from the match performed with <MatchString>
 <Options>     is a string of letters which may control some aspects.
-	      In this time the only letter with a meaning is "q":
-	      q - (quiet) do not record a transaction when adding a CFV
+              Possible options include:
+                q - (quiet) Don't record a transaction when adding the
+                    custom field value
+                * - (wildcard) The MatchString regex should contain _two_
+                    capturing groups, the first of which is the CF name,
+                    the second of which is the value.  If this option is
+                    given, the <cf-name> field is ignored.
 
-you can change the Separator string (initially "\|") during the template with a line
+you can change the Separator string (initially "\|") during the
+template with:
 
 Separator=<anyregexp>
 
-e.g. Separator=\|--\|
+Changing the separator may be necessary, if you want to use a "|" in
+one of the patterns in the controlling lines.
 
-this may be necessary, if you want to use a "|" in one of the patterns in
-the controlling lines.
-
-an example template with some further explanations is installed on
+An example template with some further examples is installed during
 "make install" or "make insert-template".
 
 Your new Scrip should use a ScripAction of 'Extract Custom Field Values' with

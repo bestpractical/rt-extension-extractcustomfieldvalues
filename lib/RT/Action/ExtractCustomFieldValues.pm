@@ -6,15 +6,15 @@ use warnings;
 
 use base qw(RT::Action::Generic);
 
-our $VERSION = 1.3;
+our $VERSION = 1.9;
 
 sub Describe  {
-  my $self = shift;
-  return (ref $self );
+    my $self = shift;
+    return (ref $self );
 }
 
 sub Prepare {
-  return (1);
+    return (1);
 }
 
 sub Commit {
@@ -39,6 +39,20 @@ sub Commit {
         }
         my ($CustomFieldName,$InspectField,$MatchString,$PostEdit,$Options) = split(/$Separator/);
 
+        if ( $Options =~ /\*/ ) {
+            ProcessWildCard(
+                Field      => $InspectField,
+                Match      => $MatchString,
+                PostEdit   => $PostEdit,
+                Attachment => $FirstAttachment,
+                Queue      => $Queue,
+                Ticket     => $Ticket,
+                Transaction => $Transaction,
+                Options    => $Options,
+            );
+            next;
+        }
+
         my $cf;
         if ($CustomFieldName) {
             $cf = LoadCF( Field => $CustomFieldName, Queue => $Queue );
@@ -46,7 +60,8 @@ sub Commit {
 
         my $match = FindMatch( Field           => $InspectField, 
                                Match           => $MatchString,
-                               FirstAttachment => $FirstAttachment );
+                               FirstAttachment => $FirstAttachment,
+                           );
 
         my %processing_args = (
             CustomField => $cf,
@@ -82,12 +97,30 @@ sub LoadCF {
 
     if ( $cf->id ) {
         $RT::Logger->debug("load cf done: ". $cf->id );
-    } else {
+    } elsif (not $args{Quiet}) {
         $RT::Logger->error("couldn't load cf $CustomFieldName");
     }
 
     return $cf;
+}
 
+sub ProcessWildCard {
+    my %args = @_;
+
+    my $content
+        = lc $args{Field} eq "body"
+        ? $args{Attachment}->Content
+        : $args{Attachment}->GetHeader( $args{Field} );
+    while ($content =~ /$args{Match}/mg) {
+        my ($cf, $value) = ($1, $2);
+        $cf = LoadCF(Field => $cf, Queue => $args{Queue}, Quiet => 1);
+        next unless $cf;
+        ProcessCF(
+            %args,
+            CustomField => $cf,
+            Match => $value
+        );
+    }
 }
 
 sub FindMatch {
@@ -105,7 +138,7 @@ sub FindMatch {
     } else {
         $RT::Logger->debug("look for match in Header $args{Field}");
         if ($args{FirstAttachment}->GetHeader("$args{Field}") =~ /$args{Match}/) {
-            $match = $1||$&;
+            $match = $1 || $&;
             $RT::Logger->debug("matched value: $match");
         }
     }
