@@ -12,7 +12,7 @@
     {  Queue       => '0',
        Name        => 'CustomFieldScannerExample',                     # loc
        Description => 'Example Template for ExtractCustomFieldValues', # loc
-       Content     => <<EOTEXT
+       Content     => <<'EOTEXT'
 #### Syntax:
 # CF Name | Header name or "Body" | MatchString(re) | Postcmd | Options
 
