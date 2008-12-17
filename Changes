@@ -1,3 +1,10 @@
+2.0
+Fix initialdata quoting
+
+1.9
+Add wildcard functionality
+Documentation and example fixups
+
 1.8
 Bump Module::Install::RTx version
 
