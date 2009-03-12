@@ -91,13 +91,16 @@ sub LoadCF {
     my %args            = @_;
     my $CustomFieldName = $args{Field};
     my $Queue           = $args{Queue};
-
     $RT::Logger->debug("load cf $CustomFieldName");
-    my $cf = RT::CustomField->new($RT::SystemUser);
-    $cf->LoadByNameAndQueue( Name => $CustomFieldName, Queue => $Queue );
-    $cf->LoadByNameAndQueue( Name => $CustomFieldName, Queue => 0 )
-        unless $cf->id;
 
+    # We do this by hand instead of using LoadByNameAndQueue because
+    # that can find disabled queues
+    my $cfs = RT::CustomFields->new($RT::SystemUser);
+    $cfs->LimitToGlobalOrQueue( $Queue );
+    $cfs->Limit( FIELD => 'Name', VALUE => $CustomFieldName, CASESENSITIVE => 0);
+    $cfs->RowsPerPage(1);
+
+    my $cf = $cfs->First;
     if ( $cf->id ) {
         $RT::Logger->debug( "load cf done: " . $cf->id );
     } elsif ( not $args{Quiet} ) {
@@ -114,6 +117,7 @@ sub ProcessWildCard {
         = lc $args{Field} eq "body"
         ? $args{Attachment}->Content
         : $args{Attachment}->GetHeader( $args{Field} );
+    return unless defined $content;
     while ( $content =~ /$args{Match}/mg ) {
         my ( $cf, $value ) = ( $1, $2 );
         $cf = LoadCF( Field => $cf, Queue => $args{Queue}, Quiet => 1 );
