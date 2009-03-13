@@ -6,25 +6,43 @@ use Module::Install::Base;
 
 use vars qw{$VERSION $ISCORE @ISA};
 BEGIN {
-	$VERSION = '0.70';
+	$VERSION = '0.79';
 	$ISCORE  = 1;
 	@ISA     = qw{Module::Install::Base};
 }
 
 my @scalar_keys = qw{
-	name module_name abstract author version license
-	distribution_type perl_version tests installdirs
+	name
+	module_name
+	abstract
+	author
+	version
+	distribution_type
+	tests
+	installdirs
 };
 
 my @tuple_keys = qw{
-	configure_requires build_requires requires recommends bundles
+	configure_requires
+	build_requires
+	requires
+	recommends
+	bundles
+	resources
 };
 
-sub Meta            { shift        }
-sub Meta_ScalarKeys { @scalar_keys }
-sub Meta_TupleKeys  { @tuple_keys  }
+my @resource_keys = qw{
+	homepage
+	bugtracker
+	repository
+};
 
-foreach my $key (@scalar_keys) {
+sub Meta              { shift          }
+sub Meta_ScalarKeys   { @scalar_keys   }
+sub Meta_TupleKeys    { @tuple_keys    }
+sub Meta_ResourceKeys { @resource_keys }
+
+foreach my $key ( @scalar_keys ) {
 	*$key = sub {
 		my $self = shift;
 		return $self->{values}{$key} if defined wantarray and !@_;
@@ -33,33 +51,65 @@ foreach my $key (@scalar_keys) {
 	};
 }
 
-foreach my $key (@tuple_keys) {
+foreach my $key ( @resource_keys ) {
+	*$key = sub {
+		my $self = shift;
+		unless ( @_ ) {
+			return () unless $self->{values}{resources};
+			return map  { $_->[1] }
+			       grep { $_->[0] eq $key }
+			       @{ $self->{values}{resources} };
+		}
+		return $self->{values}{resources}{$key} unless @_;
+		my $uri = shift or die(
+			"Did not provide a value to $key()"
+		);
+		$self->resources( $key => $uri );
+		return 1;
+	};
+}
+
+foreach my $key ( grep {$_ ne "resources"} @tuple_keys) {
 	*$key = sub {
 		my $self = shift;
 		return $self->{values}{$key} unless @_;
-
-		my @rv;
-		while (@_) {
-			my $module = shift or last;
+		my @added;
+		while ( @_ ) {
+			my $module  = shift or last;
 			my $version = shift || 0;
-			if ( $module eq 'perl' ) {
-				$version =~ s{^(\d+)\.(\d+)\.(\d+)}
-				             {$1 + $2/1_000 + $3/1_000_000}e;
-				$self->perl_version($version);
-				next;
-			}
-			my $rv = [ $module, $version ];
-			push @rv, $rv;
+			push @added, [ $module, $version ];
 		}
-		push @{ $self->{values}{$key} }, @rv;
-		@rv;
+		push @{ $self->{values}{$key} }, @added;
+		return map {@$_} @added;
 	};
+}
+
+# Resource handling
+my %lc_resource = map { $_ => 1 } qw{
+	homepage
+	license
+	bugtracker
+	repository
+};
+
+sub resources {
+	my $self = shift;
+	while ( @_ ) {
+		my $name  = shift or last;
+		my $value = shift or next;
+		if ( $name eq lc $name and ! $lc_resource{$name} ) {
+			die("Unsupported reserved lowercase resource '$name'");
+		}
+		$self->{values}{resources} ||= [];
+		push @{ $self->{values}{resources} }, [ $name, $value ];
+	}
+	$self->{values}{resources};
 }
 
 # Aliases for build_requires that will have alternative
 # meanings in some future version of META.yml.
-sub test_requires      { shift->build_requires(@_)  }
-sub install_requires   { shift->build_requires(@_)  }
+sub test_requires      { shift->build_requires(@_) }
+sub install_requires   { shift->build_requires(@_) }
 
 # Aliases for installdirs options
 sub install_as_core    { $_[0]->installdirs('perl')   }
@@ -69,45 +119,87 @@ sub install_as_vendor  { $_[0]->installdirs('vendor') }
 
 sub sign {
 	my $self = shift;
-	return $self->{'values'}{'sign'} if defined wantarray and ! @_;
-	$self->{'values'}{'sign'} = ( @_ ? $_[0] : 1 );
+	return $self->{values}{sign} if defined wantarray and ! @_;
+	$self->{values}{sign} = ( @_ ? $_[0] : 1 );
 	return $self;
 }
 
 sub dynamic_config {
 	my $self = shift;
 	unless ( @_ ) {
-		warn "You MUST provide an explicit true/false value to dynamic_config, skipping\n";
+		warn "You MUST provide an explicit true/false value to dynamic_config\n";
 		return $self;
 	}
-	$self->{'values'}{'dynamic_config'} = $_[0] ? 1 : 0;
-	return $self;
+	$self->{values}{dynamic_config} = $_[0] ? 1 : 0;
+	return 1;
+}
+
+sub perl_version {
+	my $self = shift;
+	return $self->{values}{perl_version} unless @_;
+	my $version = shift or die(
+		"Did not provide a value to perl_version()"
+	);
+
+	# Normalize the version
+	$version = $self->_perl_version($version);
+
+	# We don't support the reall old versions
+	unless ( $version >= 5.005 ) {
+		die "Module::Install only supports 5.005 or newer (use ExtUtils::MakeMaker)\n";
+	}
+
+	$self->{values}{perl_version} = $version;
+}
+
+sub license {
+	my $self = shift;
+	return $self->{values}{license} unless @_;
+	my $license = shift or die(
+		'Did not provide a value to license()'
+	);
+	$self->{values}{license} = $license;
+
+	# Automatically fill in license URLs
+	if ( $license eq 'perl' ) {
+		$self->resources( license => 'http://dev.perl.org/licenses/' );
+	}
+
+	return 1;
 }
 
 sub all_from {
 	my ( $self, $file ) = @_;
 
 	unless ( defined($file) ) {
-		my $name = $self->name
-			or die "all_from called with no args without setting name() first";
+		my $name = $self->name or die(
+			"all_from called with no args without setting name() first"
+		);
 		$file = join('/', 'lib', split(/-/, $name)) . '.pm';
 		$file =~ s{.*/}{} unless -e $file;
-		die "all_from: cannot find $file from $name" unless -e $file;
+		unless ( -e $file ) {
+			die("all_from cannot find $file from $name");
+		}
+	}
+	unless ( -f $file ) {
+		die("The path '$file' does not exist, or is not a file");
 	}
 
+	# Some methods pull from POD instead of code.
+	# If there is a matching .pod, use that instead
+	my $pod = $file;
+	$pod =~ s/\.pm$/.pod/i;
+	$pod = $file unless -e $pod;
+
+	# Pull the different values
+	$self->name_from($file)         unless $self->name;
 	$self->version_from($file)      unless $self->version;
 	$self->perl_version_from($file) unless $self->perl_version;
+	$self->author_from($pod)        unless $self->author;
+	$self->license_from($pod)       unless $self->license;
+	$self->abstract_from($pod)      unless $self->abstract;
 
-	# The remaining probes read from POD sections; if the file
-	# has an accompanying .pod, use that instead
-	my $pod = $file;
-	if ( $pod =~ s/\.pm$/.pod/i and -e $pod ) {
-		$file = $pod;
-	}
-
-	$self->author_from($file)   unless $self->author;
-	$self->license_from($file)  unless $self->license;
-	$self->abstract_from($file) unless $self->abstract;
+	return 1;
 }
 
 sub provides {
@@ -169,8 +261,8 @@ sub features {
 	while ( my ( $name, $mods ) = splice( @_, 0, 2 ) ) {
 		$self->feature( $name, @$mods );
 	}
-	return $self->{values}->{features}
-		? @{ $self->{values}->{features} }
+	return $self->{values}{features}
+		? @{ $self->{values}{features} }
 		: ();
 }
 
@@ -183,10 +275,10 @@ sub no_index {
 
 sub read {
 	my $self = shift;
-	$self->include_deps( 'YAML', 0 );
+	$self->include_deps( 'YAML::Tiny', 0 );
 
-	require YAML;
-	my $data = YAML::LoadFile('META.yml');
+	require YAML::Tiny;
+	my $data = YAML::Tiny::LoadFile('META.yml');
 
 	# Call methods explicitly in case user has already set some values.
 	while ( my ( $key, $value ) = each %$data ) {
@@ -226,35 +318,51 @@ sub abstract_from {
 	 );
 }
 
-sub _slurp {
-	local *FH;
-	open FH, "< $_[1]" or die "Cannot open $_[1].pod: $!";
-	do { local $/; <FH> };
+# Add both distribution and module name
+sub name_from {
+	my ($self, $file) = @_;
+	if (
+		Module::Install::_read($file) =~ m/
+		^ \s*
+		package \s*
+		([\w:]+)
+		\s* ;
+		/ixms
+	) {
+		my ($name, $module_name) = ($1, $1);
+		$name =~ s{::}{-}g;
+		$self->name($name);
+		unless ( $self->module_name ) {
+			$self->module_name($module_name);
+		}
+	} else {
+		die("Cannot determine name from $file\n");
+	}
 }
 
 sub perl_version_from {
-	my ( $self, $file ) = @_;
+	my $self = shift;
 	if (
-		$self->_slurp($file) =~ m/
+		Module::Install::_read($_[0]) =~ m/
 		^
-		use \s*
+		(?:use|require) \s*
 		v?
 		([\d_\.]+)
 		\s* ;
 		/ixms
 	) {
-		my $v = $1;
-		$v =~ s{_}{}g;
-		$self->perl_version($1);
+		my $perl_version = $1;
+		$perl_version =~ s{_}{}g;
+		$self->perl_version($perl_version);
 	} else {
-		warn "Cannot determine perl version info from $file\n";
+		warn "Cannot determine perl version info from $_[0]\n";
 		return;
 	}
 }
 
 sub author_from {
-	my ( $self, $file ) = @_;
-	my $content = $self->_slurp($file);
+	my $self    = shift;
+	my $content = Module::Install::_read($_[0]);
 	if ($content =~ m/
 		=head \d \s+ (?:authors?)\b \s*
 		([^\n]*)
@@ -268,15 +376,14 @@ sub author_from {
 		$author =~ s{E<gt>}{>}g;
 		$self->author($author);
 	} else {
-		warn "Cannot determine author info from $file\n";
+		warn "Cannot determine author info from $_[0]\n";
 	}
 }
 
 sub license_from {
-	my ( $self, $file ) = @_;
-
+	my $self = shift;
 	if (
-		$self->_slurp($file) =~ m/
+		Module::Install::_read($_[0]) =~ m/
 		(
 			=head \d \s+
 			(?:licen[cs]e|licensing|copyright|legal)\b
@@ -288,8 +395,12 @@ sub license_from {
 		my $license_text = $1;
 		my @phrases      = (
 			'under the same (?:terms|license) as perl itself' => 'perl',        1,
+			'GNU general public license'                      => 'gpl',         1,
 			'GNU public license'                              => 'gpl',         1,
+			'GNU lesser general public license'               => 'lgpl',        1,
 			'GNU lesser public license'                       => 'lgpl',        1,
+			'GNU library general public license'              => 'lgpl',        1,
+			'GNU library public license'                      => 'lgpl',        1,
 			'BSD license'                                     => 'bsd',         1,
 			'Artistic license'                                => 'artistic',    1,
 			'GPL'                                             => 'gpl',         1,
@@ -302,17 +413,98 @@ sub license_from {
 		while ( my ($pattern, $license, $osi) = splice(@phrases, 0, 3) ) {
 			$pattern =~ s{\s+}{\\s+}g;
 			if ( $license_text =~ /\b$pattern\b/i ) {
-				if ( $osi and $license_text =~ /All rights reserved/i ) {
-					warn "LEGAL WARNING: 'All rights reserved' may invalidate Open Source licenses. Consider removing it.";
-				}
 				$self->license($license);
 				return 1;
 			}
 		}
 	}
 
-	warn "Cannot determine license info from $file\n";
+	warn "Cannot determine license info from $_[0]\n";
 	return 'unknown';
+}
+
+sub bugtracker_from {
+	my $self    = shift;
+	my $content = Module::Install::_read($_[0]);
+	my @links   = $content =~ m/L\<(http\:\/\/rt\.cpan\.org\/[^>]+)\>/g;
+	unless ( @links ) {
+		warn "Cannot determine bugtracker info from $_[0]\n";
+		return 0;
+	}
+	if ( @links > 1 ) {
+		warn "Found more than on rt.cpan.org link in $_[0]\n";
+		return 0;
+	}
+
+	# Set the bugtracker
+	bugtracker( $links[0] );
+	return 1;
+}
+
+# Convert triple-part versions (eg, 5.6.1 or 5.8.9) to
+# numbers (eg, 5.006001 or 5.008009).
+# Also, convert double-part versions (eg, 5.8)
+sub _perl_version {
+	my $v = $_[-1];
+	$v =~ s/^([1-9])\.([1-9]\d?\d?)$/sprintf("%d.%03d",$1,$2)/e;	
+	$v =~ s/^([1-9])\.([1-9]\d?\d?)\.(0|[1-9]\d?\d?)$/sprintf("%d.%03d%03d",$1,$2,$3 || 0)/e;
+	$v =~ s/(\.\d\d\d)000$/$1/;
+	$v =~ s/_.+$//;
+	if ( ref($v) ) {
+		$v = $v + 0; # Numify
+	}
+	return $v;
+}
+
+
+
+
+
+######################################################################
+# MYMETA.yml Support
+
+sub WriteMyMeta {
+	$_[0]->write_mymeta;
+}
+
+sub write_mymeta {
+	my $self = shift;
+	
+	# If there's no existing META.yml there is nothing we can do
+	return unless -f 'META.yml';
+
+	# Merge the perl version into the dependencies
+	my $val  = $self->Meta->{values};
+	my $perl = delete $val->{perl_version};
+	if ( $perl ) {
+		$val->{requires} ||= [];
+		my $requires = $val->{requires};
+
+		# Canonize to three-dot version after Perl 5.6
+		if ( $perl >= 5.006 ) {
+			$perl =~ s{^(\d+)\.(\d\d\d)(\d*)}{join('.', $1, int($2||0), int($3||0))}e
+		}
+		unshift @$requires, [ perl => $perl ];
+	}
+
+	# Load the advisory META.yml file
+	require YAML::Tiny;
+	my @yaml = YAML::Tiny::LoadFile('META.yml');
+	my $meta = $yaml[0];
+
+	# Overwrite the non-configure dependency hashs
+	delete $meta->{requires};
+	delete $meta->{build_requires};
+	delete $meta->{recommends};
+	if ( exists $val->{requires} ) {
+		$meta->{requires} = { map { @$_ } @{ $val->{requires} } };
+	}
+	if ( exists $val->{build_requires} ) {
+		$meta->{build_requires} = { map { @$_ } @{ $val->{build_requires} } };
+	}
+
+	# Save as the MYMETA.yml file
+	YAML::Tiny::DumpFile('MYMETA.yml', $meta);
 }
 
 1;

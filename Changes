@@ -1,3 +1,7 @@
+2.99
+Rewrite to use method calls, not functions, and support extraction
+from _all_ text/plain MIME parts, not just the first.
+
 2.05
 Previous versions could find disabled versions of custon fields if
 they had duplicate names.  Work around this by not using

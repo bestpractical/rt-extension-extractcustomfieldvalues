@@ -6,7 +6,7 @@ use warnings;
 
 use base qw(RT::Action::Generic);
 
-our $VERSION = 2.05;
+our $VERSION = 2.99_01;
 
 sub Describe {
     my $self = shift;
@@ -17,18 +17,22 @@ sub Prepare {
     return (1);
 }
 
-sub Commit {
-    my $self            = shift;
-    my $Transaction     = $self->TransactionObj;
-    my $FirstAttachment = $Transaction->Attachments->First;
-    unless ($FirstAttachment) { return 1; }
+sub FirstAttachment {
+    my $self = shift;
+    return $self->TransactionObj->Attachments->First;
+}
 
-    my $Ticket    = $self->TicketObj;
-    my $Content   = $self->TemplateObj->Content;
-    my $Queue     = $Ticket->QueueObj->Id;
+sub Queue {
+    my $self = shift;
+    return $self->TicketObj->QueueObj->Id;
+}
+
+sub TemplateConfig {
+    my $self = shift;
+
     my $Separator = '\|';
-
-    my @lines = split( /[\n\r]+/, $Content );
+    my @lines = split( /[\n\r]+/, $self->TemplateObj->Content );
+    my @results;
     for (@lines) {
         chomp;
         next if (/^#/);
@@ -37,145 +41,141 @@ sub Commit {
             $Separator = $1;
             next;
         }
-        my ( $CustomFieldName, $InspectField, $MatchString, $PostEdit,
-            $Options )
+        my %line;
+        @line{qw/CFName Field Match PostEdit Options/}
             = split(/$Separator/);
+        push @results, \%line;
+    }
+    return @results;
+}
 
-        if ( $Options =~ /\*/ ) {
-            ProcessWildCard(
-                Field       => $InspectField,
-                Match       => $MatchString,
-                PostEdit    => $PostEdit,
-                Attachment  => $FirstAttachment,
-                Queue       => $Queue,
-                Ticket      => $Ticket,
-                Transaction => $Transaction,
-                Options     => $Options,
+sub Commit {
+    my $self            = shift;
+    return 1 unless $self->FirstAttachment;
+
+    for my $config ($self->TemplateConfig) {
+        require YAML;
+        $RT::Logger->debug("Looking to extract:" . YAML::Dump($config));
+        
+        my %config = %{$config};
+
+        if ( $config{Options} =~ /\*/ ) {
+            $self->FindContent(
+                %config,
+                Callback    => sub {
+                    my $content = shift;
+                    while ( $content =~ /$config{Match}/mg ) {
+                        my ( $cf, $value ) = ( $1, $2 );
+                        $cf = $self->LoadCF( Name => $cf, Quiet => 1 );
+                        next unless $cf;
+                        $self->ProcessCF(
+                            %config,
+                            CustomField => $cf,
+                            Value       => $value
+                        );
+                    }
+                },
             );
-            next;
-        }
-
-        my $cf;
-        if ($CustomFieldName) {
-            $cf = LoadCF( Field => $CustomFieldName, Queue => $Queue );
-        }
-
-        my $match = FindMatch(
-            Field           => $InspectField,
-            Match           => $MatchString,
-            FirstAttachment => $FirstAttachment,
-        );
-
-        my %processing_args = (
-            CustomField => $cf,
-            Match       => $match,
-
-            Ticket      => $Ticket,
-            Transaction => $Transaction,
-            Attachment  => $FirstAttachment,
-
-            PostEdit => $PostEdit,
-            Options  => $Options,
-        );
-
-        if ($cf) {
-            ProcessCF(%processing_args);
         } else {
-            ProcessMatch(%processing_args);
+            my $cf;
+            $cf = $self->LoadCF( Name => $config{CFName} )
+                if $config{CFName};
+
+            $self->FindContent(
+                %config,
+                Callback    => sub {
+                    my $content = shift;
+                    my $value = $1 || $& if $content =~ /$config{Match}/m;
+                    $self->ProcessCF(
+                        %config,
+                        CustomField => $cf,
+                        Value       => $value,
+                    );
+                }
+            );
         }
     }
     return (1);
 }
 
 sub LoadCF {
+    my $self = shift;
     my %args            = @_;
-    my $CustomFieldName = $args{Field};
-    my $Queue           = $args{Queue};
-    $RT::Logger->debug("load cf $CustomFieldName");
+    my $CustomFieldName = $args{Name};
+    $RT::Logger->debug( "Looking for CF $CustomFieldName");
 
     # We do this by hand instead of using LoadByNameAndQueue because
     # that can find disabled queues
     my $cfs = RT::CustomFields->new($RT::SystemUser);
-    $cfs->LimitToGlobalOrQueue( $Queue );
-    $cfs->Limit( FIELD => 'Name', VALUE => $CustomFieldName, CASESENSITIVE => 0);
+    $cfs->LimitToGlobalOrQueue($self->Queue);
+    $cfs->Limit(
+        FIELD         => 'Name',
+        VALUE         => $CustomFieldName,
+        CASESENSITIVE => 0
+    );
     $cfs->RowsPerPage(1);
 
     my $cf = $cfs->First;
     if ( $cf->id ) {
-        $RT::Logger->debug( "load cf done: " . $cf->id );
+        $RT::Logger->debug( "Found CF id " . $cf->id );
     } elsif ( not $args{Quiet} ) {
-        $RT::Logger->error("couldn't load cf $CustomFieldName");
+        $RT::Logger->error( "Couldn't load CF $CustomFieldName!");
     }
 
     return $cf;
 }
 
-sub ProcessWildCard {
+sub FindContent {
+    my $self = shift;
     my %args = @_;
+    if ( lc $args{Field} eq "body" ) {
+        my $Attachments  = $self->TransactionObj->Attachments;
+        my $LastContent  = '';
+        my $AttachmentCount = 0;
 
-    my $content
-        = lc $args{Field} eq "body"
-        ? $args{Attachment}->Content
-        : $args{Attachment}->GetHeader( $args{Field} );
-    return unless defined $content;
-    while ( $content =~ /$args{Match}/mg ) {
-        my ( $cf, $value ) = ( $1, $2 );
-        $cf = LoadCF( Field => $cf, Queue => $args{Queue}, Quiet => 1 );
-        next unless $cf;
-        ProcessCF(
-            %args,
-            CustomField => $cf,
-            Match       => $value
-        );
-    }
-}
-
-sub FindMatch {
-    my %args = @_;
-
-    my $match = '';
-    if ( $args{Field} =~ /^body$/i ) {
-        $RT::Logger->debug("look for match in Body");
-        if (   $args{FirstAttachment}->Content
-            && $args{FirstAttachment}->Content =~ /$args{Match}/m )
-        {
-            $match = $1 || $&;
-            $RT::Logger->debug("matched value: $match");
+        while ( my $Message = $Attachments->Next ) {
+            $AttachmentCount++;
+            $RT::Logger->debug( "Looking at attachment $AttachmentCount, content-type "
+                                    . $Message->ContentType );
+            next
+                unless $Message->ContentType
+                    =~ m!^(text/plain|message|text$)!i;
+            next unless $Message->Content;
+            next if $LastContent eq $Message->Content;
+            $RT::Logger->debug( "Examining content of body" );
+            $LastContent = $Message->Content;
+            $args{Callback}->( $Message->Content )
         }
     } else {
-        $RT::Logger->debug("look for match in Header $args{Field}");
-        if ( $args{FirstAttachment}->GetHeader("$args{Field}")
-            =~ /$args{Match}/ )
-        {
-            $match = $1 || $&;
-            $RT::Logger->debug("matched value: $match");
-        }
+        my $attachment = $self->FirstAttachment;
+        $RT::Logger->debug( "Looking at $args{Field} header of first attachment" );
+        my $content = $attachment->GetHeader( $args{Field} );
+        return unless defined $content;
+        $RT::Logger->debug( "Examining content of header" );
+        $args{Callback}->( $content );
     }
-
-    return $match;
 }
 
 sub ProcessCF {
+    my $self = shift;
     my %args = @_;
+
+    return $self->PostEdit(%args)
+        unless $args{CustomField};
 
     my @values = ();
     if ( $args{CustomField}->SingleValue() ) {
-        push @values, $args{Match};
+        push @values, $args{Value};
     } else {
-        @values = split( ',', $args{Match} );
+        @values = split( ',', $args{Value} );
     }
 
     foreach my $value ( grep defined && length, @values ) {
-        if ( $args{PostEdit} ) {
-            local $@;
-            eval( $args{PostEdit} );
-            $RT::Logger->error("$@") if $@;
-            $RT::Logger->debug("transformed ($args{PostEdit}) value: $value");
-        }
+        $value = $self->PostEdit(%args, Value => $value );
         next unless defined $value && length $value;
 
-        $RT::Logger->debug("found value for cf: $value");
-        my ( $id, $msg ) = $args{Ticket}->AddCustomFieldValue(
+        $RT::Logger->debug( "Found value for CF: $value");
+        my ( $id, $msg ) = $self->TicketObj->AddCustomFieldValue(
             Field             => $args{CustomField},
             Value             => $value,
             RecordTransaction => $args{Options} =~ /q/ ? 0 : 1
@@ -186,19 +186,19 @@ sub ProcessCF {
     }
 }
 
-sub ProcessMatch {
-    my %args            = @_;
-    my $Ticket          = $args{Ticket};
-    my $Transaction     = $args{Transaction};
-    my $FirstAttachment = $args{Attachment};
+sub PostEdit {
+    my $self = shift;
+    my %args = @_;
 
-    if ( $args{Match} && $args{PostEdit} ) {
-        local $_ = $args{Match};    # backwards compatibility
-        local $@;
-        eval( $args{PostEdit} );
-        $RT::Logger->error("$@") if $@;
-        $RT::Logger->debug("ran code $args{PostEdit} $@");
-    }
+    return $args{Value} unless $args{Value} && $args{PostEdit};
+
+    $RT::Logger->debug( "Running PostEdit for '$args{Value}'");
+    my $value = $args{Value};
+    local $_  = $value;    # backwards compatibility
+    local $@;
+    eval( $args{PostEdit} );
+    $RT::Logger->error("$@") if $@;
+    return $value;
 }
 
 1;
