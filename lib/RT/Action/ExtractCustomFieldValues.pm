@@ -6,7 +6,7 @@ use warnings;
 
 use base qw(RT::Action::Generic);
 
-our $VERSION = 2.0;
+our $VERSION = 2.05;
 
 sub Describe {
     my $self = shift;

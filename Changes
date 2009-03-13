@@ -1,3 +1,8 @@
+2.05
+Previous versions could find disabled versions of custon fields if
+they had duplicate names.  Work around this by not using
+LoadByNameAndQueue.
+
 2.0
 Fix initialdata quoting
 
