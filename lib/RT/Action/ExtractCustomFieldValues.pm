@@ -54,10 +54,9 @@ sub Commit {
     return 1 unless $self->FirstAttachment;
 
     for my $config ($self->TemplateConfig) {
-        require YAML;
-        $RT::Logger->debug("Looking to extract:" . YAML::Dump($config));
-        
         my %config = %{$config};
+        $RT::Logger->debug( "Looking to extract: "
+                . join( " ", map {"$_=$config{$_}"} sort keys %config ) );
 
         if ( $config{Options} =~ /\*/ ) {
             $self->FindContent(
