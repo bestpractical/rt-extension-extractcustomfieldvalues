@@ -115,7 +115,7 @@ sub LoadCF {
     $cfs->RowsPerPage(1);
 
     my $cf = $cfs->First;
-    if ( $cf->id ) {
+    if ( $cf && $cf->id ) {
         $RT::Logger->debug( "Found CF id " . $cf->id );
     } elsif ( not $args{Quiet} ) {
         $RT::Logger->error( "Couldn't load CF $CustomFieldName!");
