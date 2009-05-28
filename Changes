@@ -1,4 +1,9 @@
-2.99
+2.99_02
+If you specified an invalid CF in your template or used the
+match-any-cf option and your regex matched something that wasn't
+a CF name, the Scrip would die before completing
+
+2.99_01
 Rewrite to use method calls, not functions, and support extraction
 from _all_ text/plain MIME parts, not just the first.
 
