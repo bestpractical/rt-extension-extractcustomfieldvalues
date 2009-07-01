@@ -1,3 +1,9 @@
+3.01
+Fix signature
+
+3.00
+Release updated parser from 2.99 dev releases
+
 2.99_02
 If you specified an invalid CF in your template or used the
 match-any-cf option and your regex matched something that wasn't

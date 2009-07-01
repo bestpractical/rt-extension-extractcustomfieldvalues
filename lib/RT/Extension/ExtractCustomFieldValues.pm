@@ -3,6 +3,6 @@ use strict;
 
 package RT::Extension::ExtractCustomFieldValues;
 
-our $VERSION = '3.00';
+our $VERSION = '3.01';
 
 1;
