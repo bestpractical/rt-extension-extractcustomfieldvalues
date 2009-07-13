@@ -63,16 +63,19 @@ sub Commit {
                 %config,
                 Callback    => sub {
                     my $content = shift;
+                    my $found = 0;
                     while ( $content =~ /$config{Match}/mg ) {
                         my ( $cf, $value ) = ( $1, $2 );
                         $cf = $self->LoadCF( Name => $cf, Quiet => 1 );
                         next unless $cf;
+                        $found++;
                         $self->ProcessCF(
                             %config,
                             CustomField => $cf,
                             Value       => $value
                         );
                     }
+                    return $found;
                 },
             );
         } else {
@@ -84,12 +87,13 @@ sub Commit {
                 %config,
                 Callback    => sub {
                     my $content = shift;
-                    my $value = $1 || $& if $content =~ /$config{Match}/m;
+                    return 0 unless $content =~ /$config{Match}/m;
                     $self->ProcessCF(
                         %config,
                         CustomField => $cf,
-                        Value       => $value,
+                        Value       => $1 || $&,
                     );
+                    return 1;
                 }
             );
         }
