@@ -136,18 +136,23 @@ sub FindContent {
         my $LastContent  = '';
         my $AttachmentCount = 0;
 
-        while ( my $Message = $Attachments->Next ) {
+        my @list = @{ $Attachments->ItemsArrayRef };
+        while ( my $Message = shift @list ) {
             $AttachmentCount++;
             $RT::Logger->debug( "Looking at attachment $AttachmentCount, content-type "
                                     . $Message->ContentType );
-            next
-                unless $Message->ContentType
-                    =~ m!^(text/plain|message|text$)!i;
-            next unless $Message->Content;
-            next if $LastContent eq $Message->Content;
+            my $ct = $Message->ContentType;
+            unless ( $ct =~ m!^(text/plain|message|text$)!i ) {
+                # don't skip one attachment that is text/*
+                next if @list > 1 || $ct !~ m!^text/!;
+            }
+
+            my $content = $Message->Content;
+            next unless $content;
+            next if $LastContent eq $content;
             $RT::Logger->debug( "Examining content of body" );
-            $LastContent = $Message->Content;
-            $args{Callback}->( $Message->Content )
+            $LastContent = $content;
+            $args{Callback}->( $content );
         }
     } else {
         my $attachment = $self->FirstAttachment;
