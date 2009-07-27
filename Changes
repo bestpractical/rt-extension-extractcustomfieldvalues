@@ -1,3 +1,7 @@
+3.02
+Parse text/html part if it's the only part in an email
+Don't run callback on negative matches
+
 3.01
 Fix signature
 
