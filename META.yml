@@ -16,4 +16,4 @@ no_index:
   directory:
     - etc
     - inc
-version: 3.03
+version: 3.04
