@@ -1,3 +1,7 @@
+3.03
+Add feature to search all of the headers of a mail, rather than
+just a specific header.
+
 3.02
 Parse text/html part if it's the only part in an email
 Don't run callback on negative matches
