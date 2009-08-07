@@ -45,8 +45,8 @@ where:
               will be executed, but no custom field will be updated.
               Use this if you need to execute other RT code based on 
               your match.
-<Headername>  is either a Name of an email header or "body" to scan the
-              body of the email
+<Headername>  is either a Name of an email header,  "body" to scan the
+              body of the email or "headers" to search all of the headers
 <MatchString> is a reg. expr. to find a match in the header or body
               if the MatchString matches a comma separated list
               and the cf is a multi value cf then each item in the

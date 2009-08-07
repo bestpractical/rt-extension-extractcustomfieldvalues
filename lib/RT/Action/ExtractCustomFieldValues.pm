@@ -154,6 +154,13 @@ sub FindContent {
             $LastContent = $content;
             $args{Callback}->( $content );
         }
+    } elsif ( lc $args{Field} eq 'headers' ) {
+        my $attachment = $self->FirstAttachment;
+        $RT::Logger->debug( "Looking at the headers of the first attachment" );
+        my $content = $attachment->Headers;
+        return unless $content;
+        $RT::Logger->debug( "Examining content of headers" );
+        $args{Callback}->( $content );
     } else {
         my $attachment = $self->FirstAttachment;
         $RT::Logger->debug( "Looking at $args{Field} header of first attachment" );
