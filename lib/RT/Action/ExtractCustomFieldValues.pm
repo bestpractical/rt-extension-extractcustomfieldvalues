@@ -35,15 +35,16 @@ sub TemplateConfig {
     my @results;
     for (@lines) {
         chomp;
-        next if (/^#/);
-        next if (/^\s*$/);
-        if (/^Separator=(.*)$/) {
+        next if /^#/;
+        next if /^\s*$/;
+        if (/^Separator=(.+)$/) {
             $Separator = $1;
             next;
         }
         my %line;
         @line{qw/CFName Field Match PostEdit Options/}
             = split(/$Separator/);
+        $_ = '' for grep !defined, values %line;
         push @results, \%line;
     }
     return @results;
