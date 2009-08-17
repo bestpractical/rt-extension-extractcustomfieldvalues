@@ -1,78 +1,80 @@
-CONTACT:
+NAME
+    RT::Extension::ExtractCustomFieldValues - extract CF values from email
+    headers or body
 
-This is version 2.0 of RT::Extension::ExtractCustomFieldValues, which
-is a contribution to RT <http://www.bestpractical.com/rt/>, as
-modified by Best Practical for customer use.
+DESCRIPTION
+    ExtractCustomFieldValues is based on a scrip action
+    "ExtractCustomFieldValues", which can be used to scan incoming emails to
+    set values of custom fields.
 
-All bug reports and support requests should be referred to Best
-Practical <sales@bestpractical.com>.
+INSTALLATION
+        perl Makefile.PL
+        make
+        make install
+        make initdb # first time only
 
-ACKNOWLEDGEMENT:
+    When using this extension with RT 3.8, you will need to add extension to
+    the Plugins configuration:
 
-ExtractCustomFieldValues was originally written by Dirk Pape
-<pape@inf.fu-berlin.de>.
+        Set( @Plugins, qw(... RT::Extension::ExtractCustomFieldValues) );
 
-PURPOSE:
+USAGE
+    To use the ScripAction, create a Template and a Scrip in RT. Your new
+    Scrip should use a ScripAction of 'Extract Custom Field Values'. The
+    Template consists of the lines which control the scanner. All
+    non-comment lines are of the following format:
 
-ExtractCustomFieldValues consists of a new ScripAction
-"ExtractCustomFieldValues", which can be used to scan incoming emails
-to set values of custom fields.
+        <cf-name>|<Headername>|<MatchString>|<Postcmd>|<Options>
 
-INSTALL:
+    where:
 
-    perl Makefile.PL
-    make install
-    make initdb
+    <cf-name> - the name of a custom field (must be created in RT) If this
+    field is blank, the match will be run and Postcmd will be executed, but
+    no custom field will be updated. Use this if you need to execute other
+    RT code based on your match.
+    <Headername> - either a Name of an email header, "body" to scan the body
+    of the email or "headers" to search all of the headers.
+    <MatchString> - a regular expression to find a match in the header or
+    body if the MatchString matches a comma separated list and the CF is a
+    multi value CF then each item in the list is added as a separate value.
+    <Postcmd> - a perl code to be evaluated on $value, where $value is
+    either $1 or full match text from the match performed with <MatchString>
+    <Options> - a string of letters which may control some aspects. Possible
+    options include:
 
-When using this extension with RT 3.8, you will need to add
-"RT::Extension::ExtractCustomFieldValues" to the Plugins
-configuration:
+        'q' - (quiet) Don't record a transaction when adding the custom
+        field value
+        '*' - (wildcard) The MatchString regex should contain _two_
+        capturing groups, the first of which is the CF name, the second of
+        which is the value. If this option is given, the <cf-name> field is
+        ignored.
 
-    Set( @Plugins, qw(RT::Extension::ExtractCustomFieldValues) );
+  Separator
+    You can change the separator string (initially "\|") during the template
+    with:
 
-USE:
+        Separator=<anyregexp>
 
-To use the ScripAction, create a Template and a Scrip in RT. The
-Template consists of the lines which control the scanner. All
-non-comment lines are of the following format:
+    Changing the separator may be necessary, if you want to use a "|" in one
+    of the patterns in the controlling lines.
 
-<cf-name>|<Headername>|<MatchString>|<Postcmd>|<Options>
+  Example and further reading
+    An example template with some further examples is installed during "make
+    install" or "make insert-template". See the CustomFieldScannerExample
+    template for examples and further documentation.
 
-where:
+AUTHOR
+    This extension was originally written by Dirk Pape
+    <pape@inf.fu-berlin.de>.
 
-<cf-name>     is the name of a custom field (must be created in RT)
-              If this field is blank, the match will be run and Postcmd
-              will be executed, but no custom field will be updated.
-              Use this if you need to execute other RT code based on 
-              your match.
-<Headername>  is either a Name of an email header,  "body" to scan the
-              body of the email or "headers" to search all of the headers
-<MatchString> is a reg. expr. to find a match in the header or body
-              if the MatchString matches a comma separated list
-              and the cf is a multi value cf then each item in the
-              list is added as a separate value
-<Postcmd>     is a perl command to be evaluated on $_, where $_ is either
-              $1 or $& from the match performed with <MatchString>
-<Options>     is a string of letters which may control some aspects.
-              Possible options include:
-                q - (quiet) Don't record a transaction when adding the
-                    custom field value
-                * - (wildcard) The MatchString regex should contain _two_
-                    capturing groups, the first of which is the CF name,
-                    the second of which is the value.  If this option is
-                    given, the <cf-name> field is ignored.
+    This version is modified by Best Practical for customer use and
+    maintained by Best Practical Solutions.
 
-you can change the Separator string (initially "\|") during the
-template with:
+BUGS
+    Report bugs using http://rt.cpan.org service, discuss on RT's mailing
+    lists, see also </SUPPORT>
 
-Separator=<anyregexp>
+SUPPORT
+    Support requests should be referred to Best Practical
+    <sales@bestpractical.com>.
 
-Changing the separator may be necessary, if you want to use a "|" in
-one of the patterns in the controlling lines.
-
-An example template with some further examples is installed during
-"make install" or "make insert-template".
-
-Your new Scrip should use a ScripAction of 'Extract Custom Field Values' with
-a Template pointing to your code (see the CustomFieldScannerExample template
-for examples and further documentation);

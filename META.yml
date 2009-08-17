@@ -1,6 +1,7 @@
 ---
-abstract: 'RT Extension-ExtractCustomFieldValues Extension'
-author: ~
+abstract: 'extract CF values from email headers or body'
+author:
+  - 'This extension was originally written by Dirk Pape'
 build_requires:
   ExtUtils::MakeMaker: 6.42
 configure_requires:
