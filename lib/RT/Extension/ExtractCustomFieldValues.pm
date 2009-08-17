@@ -9,7 +9,7 @@ RT::Extension::ExtractCustomFieldValues - extract CF values from email headers o
 
 =cut
 
-our $VERSION = '3.02';
+our $VERSION = '3.04';
 
 1;
 
@@ -49,8 +49,8 @@ field is blank, the match will be run and Postcmd will be executed, but no
 custom field will be updated. Use this if you need to execute other RT code
 based on your match.
 
-=item <Headername> - either a Name of an email header or "body" to scan the
-body of the email.
+=item <Headername> - either a Name of an email header, "body" to scan the body
+of the email or "headers" to search all of the headers.
 
 =item <MatchString> - a regular expression to find a match in the header or
 body if the MatchString matches a comma separated list and the CF is a multi

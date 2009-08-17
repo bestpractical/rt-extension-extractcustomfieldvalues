@@ -57,6 +57,10 @@
 # Separator=!
 # !Body!^Set ([^\n:]*?):\s*((?s).*?)(?:\Z|\n\Z|\n\n)!!*
 
+# 7. Looks for the regex anywhere in the headers and stores the match
+#    in the AllHeaderSearch CF
+# AllHeaderSearch|Headers|Site:\s*(\w+)
+
 EOTEXT
     }
 );
