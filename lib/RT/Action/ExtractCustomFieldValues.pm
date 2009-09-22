@@ -88,11 +88,11 @@ sub Commit {
                 %config,
                 Callback    => sub {
                     my $content = shift;
-                    return 0 unless $content =~ /$config{Match}/m;
+                    return 0 unless $content =~ /($config{Match})/m;
                     $self->ProcessCF(
                         %config,
                         CustomField => $cf,
-                        Value       => $1 || $&,
+                        Value       => $2 || $1,
                     );
                     return 1;
                 }
