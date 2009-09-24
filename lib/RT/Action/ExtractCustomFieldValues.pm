@@ -27,11 +27,16 @@ sub Queue {
     return $self->TicketObj->QueueObj->Id;
 }
 
+sub TemplateContent {
+    my $self = shift;
+    return $self->TemplateObj->Content;
+}
+
 sub TemplateConfig {
     my $self = shift;
 
     my $Separator = '\|';
-    my @lines = split( /[\n\r]+/, $self->TemplateObj->Content );
+    my @lines = split( /[\n\r]+/, $self->TemplateContent);
     my @results;
     for (@lines) {
         chomp;
