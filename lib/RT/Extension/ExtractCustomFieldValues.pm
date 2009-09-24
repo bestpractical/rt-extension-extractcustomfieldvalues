@@ -115,8 +115,8 @@ and maintained by Best Practical Solutions.
 
 =head1 BUGS
 
-Report bugs using http://rt.cpan.org service, discuss on RT's
-mailing lists, see also </SUPPORT>
+Report bugs using L<http://rt.cpan.org> service, discuss on RT's
+mailing lists, see also L</SUPPORT>
 
 =head1 SUPPORT
 
