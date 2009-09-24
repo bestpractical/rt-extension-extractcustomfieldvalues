@@ -79,24 +79,10 @@ If this option is given, the <cf-name> field is ignored.
 You can change the separator string (initially "\|") during the
 template with:
 
-    Separator=<any regexp>
+    Separator=<anyregexp>
 
 Changing the separator may be necessary, if you want to use a "|" in
 one of the patterns in the controlling lines.
-
-=head2 Rewrite
-
-If your template needs to have dynamic content, then you can specify an
-arbitrary Perl expression to rewrite the template.
-
-    Rewrite=<any expression>
-
-The expression will receive the rest of the original template in C<$_>. The
-return value of the expression will be used as the template. Be careful when
-using C<Rewrite=s/.../.../> because the return value of C<s///> is the number
-of replacements. Use C<Rewrite=s/.../.../; $_>
-
-You may only specify a single rewrite expression for a template.
 
 =head2 Example and further reading
 

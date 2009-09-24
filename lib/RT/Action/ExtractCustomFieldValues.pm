@@ -30,16 +30,8 @@ sub Queue {
 sub TemplateConfig {
     my $self = shift;
 
-    my $content = $self->TemplateObj->Content;
-
-    # We document that users may specify only a single rewrite expression
-    if ($content =~ s/^Rewrite=(.+)//m) {
-        local $_ = $content;
-        $content = eval $1;
-    }
-
     my $Separator = '\|';
-    my @lines = split( /[\n\r]+/, $content);
+    my @lines = split( /[\n\r]+/, $self->TemplateObj->Content );
     my @results;
     for (@lines) {
         chomp;
