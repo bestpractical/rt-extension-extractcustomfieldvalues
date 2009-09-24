@@ -4,7 +4,11 @@
 
     { Name        => 'Extract Custom Field Values',          # loc
       Description => 'extract cf-values out of a message',    # loc
-      ExecModule  => 'ExtractCustomFieldValues' }
+      ExecModule  => 'ExtractCustomFieldValues' },
+
+    { Name        => 'Extract Custom Field Values With Code in Template', # loc
+      Description => 'extract cf-values out of a message with a Text::Template template',    # loc
+      ExecModule  => 'ExtractCustomFieldValuesWithCodeInTemplate' }
 
 );
 
