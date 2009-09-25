@@ -35,8 +35,13 @@ sub TemplateContent {
 sub TemplateConfig {
     my $self = shift;
 
+    my ($content, $error) = $self->TemplateContent;
+    if (!defined($content)) {
+        return (undef, $error);
+    }
+
     my $Separator = '\|';
-    my @lines = split( /[\n\r]+/, $self->TemplateContent);
+    my @lines = split( /[\n\r]+/, $content);
     my @results;
     for (@lines) {
         chomp;
@@ -52,14 +57,18 @@ sub TemplateConfig {
         $_ = '' for grep !defined, values %line;
         push @results, \%line;
     }
-    return @results;
+    return \@results;
 }
 
 sub Commit {
     my $self            = shift;
     return 1 unless $self->FirstAttachment;
 
-    for my $config ($self->TemplateConfig) {
+    my ($config_lines, $error) = $self->TemplateConfig;
+
+    return 0 if $error;
+
+    for my $config (@$config_lines) {
         my %config = %{$config};
         $RT::Logger->debug( "Looking to extract: "
                 . join( " ", map {"$_=$config{$_}"} sort keys %config ) );
