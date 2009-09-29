@@ -1,3 +1,9 @@
+3.06
+
+New 'Extract Custom Field Values With Code in Template' action
+that allows your ExtractCustomFieldValues template to contain 
+Text::Template code in case your template needs to be dynamic.
+
 3.05
 doc updates
 get rid of uninit warnings
