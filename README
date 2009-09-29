@@ -11,12 +11,16 @@ INSTALLATION
         perl Makefile.PL
         make
         make install
-        make initdb # first time only
+        make initdb # first time only, not on upgrades
 
     When using this extension with RT 3.8, you will need to add extension to
     the Plugins configuration:
 
         Set( @Plugins, qw(... RT::Extension::ExtractCustomFieldValues) );
+
+    If you are upgrading this extension from 3.05 or earlier, you will need
+    to read the UPGRADING file after running make install to add the new
+    Scrip Action.
 
 USAGE
     To use the ScripAction, create a Template and a Scrip in RT. Your new
@@ -71,8 +75,8 @@ AUTHOR
     maintained by Best Practical Solutions.
 
 BUGS
-    Report bugs using http://rt.cpan.org service, discuss on RT's mailing
-    lists, see also </SUPPORT>
+    Report bugs using <http://rt.cpan.org> service, discuss on RT's mailing
+    lists, see also "SUPPORT"
 
 SUPPORT
     Support requests should be referred to Best Practical
