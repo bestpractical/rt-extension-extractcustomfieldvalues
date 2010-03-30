@@ -65,6 +65,24 @@
 #    in the AllHeaderSearch CF
 # AllHeaderSearch|Headers|Site:\s*(\w+)
 
+# 8. If you need to dynamically build your matching, and want to trigger on headers and body
+#    and invode some arbitrary code like example 5
+# Separator=~~
+# {
+#    my $action = 'use My::Site; My::Site::SetSiteID( Ticket => $self->TicketObj, Site => $_ );';
+#
+#    for my $regex (My::Site::ValidRegexps) {
+#        for my $from ('headers', 'body') {
+#            $OUT .= join '~~',
+#                '', # CF name
+#                $from,
+#                $regex,
+#                $action;
+#            $OUT .= "\n";
+#        }
+#    }
+}
+
 EOTEXT
     }
 );
