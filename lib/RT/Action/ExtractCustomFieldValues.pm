@@ -1,10 +1,10 @@
 package RT::Action::ExtractCustomFieldValues;
-require RT::Action::Generic;
+require RT::Action;
 
 use strict;
 use warnings;
 
-use base qw(RT::Action::Generic);
+use base qw(RT::Action);
 
 our $VERSION = 2.99_01;
 
