@@ -1,6 +1,6 @@
 Makefile
 pm_to_blib
 *.bak
+*.old
 blib
-MANIFEST.bak
 RT-Extension-ExtractCustomFieldValues-*
