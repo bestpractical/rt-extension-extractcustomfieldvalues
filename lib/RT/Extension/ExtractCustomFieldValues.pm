@@ -57,8 +57,8 @@ based on your match.
 of the email or "headers" to search all of the headers.
 
 =item <MatchString> - a regular expression to find a match in the header or
-body if the MatchString matches a comma separated list and the CF is a multi
-value CF then each item in the list is added as a separate value.
+body.  If the MatchString matches a comma separated list and the CF is a
+multi-value CF then each item in the list is added as a separate value.
 
 =item <Postcmd>  - a perl code to be evaluated on C<$value>, where C<$value> is
 either $1 or full match text from the match performed with <MatchString>
@@ -72,7 +72,11 @@ options include:
 
 =item '*' - (wildcard) The MatchString regex should contain _two_ capturing
 groups, the first of which is the CF name, the second of which is the value.
-If this option is given, the <cf-name> field is ignored.
+If this option is given, the <cf-name> field is ignored.  (Supercedes '+'.)
+
+=item '+' - (multiple) The MatchString regex will be applied with the /g option
+and all matching values will be added to the CF, which should probably be a
+multi-value CF for best results.  (Superceded by '*'.)
 
 =back
 

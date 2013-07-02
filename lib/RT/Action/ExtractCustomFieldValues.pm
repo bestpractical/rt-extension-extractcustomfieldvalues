@@ -93,6 +93,27 @@ sub Commit {
                     return $found;
                 },
             );
+        } elsif ( $config{Options} =~ /\+/ ) {
+            my $cf;
+            $cf = $self->LoadCF( Name => $config{CFName} )
+                if $config{CFName};
+
+            $self->FindContent(
+                %config,
+                Callback    => sub {
+                    my $content = shift;
+                    my $found = 0;
+                    while ( $content =~ /($config{Match})/mg ) {
+                        $found++;
+                        $self->ProcessCF(
+                            %config,
+                            CustomField => $cf,
+                            Value       => $2 || $1,
+                        );
+                    }
+                    return $found;
+                }
+            );
         } else {
             my $cf;
             $cf = $self->LoadCF( Name => $config{CFName} )
