@@ -111,6 +111,14 @@ mailing lists, see also L</SUPPORT>
 =head1 SUPPORT
 
 Support requests should be referred to Best Practical
-E<lt>sales@bestpractical.comE<gt>.  
+E<lt>sales@bestpractical.comE<gt>.
+
+=head1 LICENSE AND COPYRIGHT
+
+This software is Copyright (c) 2007-2013 by Best Practical Solutions, LLC.
+
+This is free software, licensed under:
+
+  The GNU General Public License, Version 2, June 1991
 
 =cut

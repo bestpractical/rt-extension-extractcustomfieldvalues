@@ -9,7 +9,7 @@ configure_requires:
 distribution_type: module
 dynamic_config: 1
 generated_by: 'Module::Install version 1.06'
-license: unknown
+license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
@@ -18,4 +18,6 @@ no_index:
   directory:
     - etc
     - inc
+resources:
+  license: http://opensource.org/licenses/gpl-license.php
 version: 3.07
