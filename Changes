@@ -1,3 +1,7 @@
+3.08    Tue Jul 30 17:51:30 PDT 2013
+* Add a '+' option to capture multiple values (thanks to Kevin Riggle)
+* Add an explicit license
+
 3.07
 
 Compatibility tweaks for RT4

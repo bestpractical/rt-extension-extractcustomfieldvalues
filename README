@@ -39,8 +39,8 @@ USAGE
     <Headername> - either a Name of an email header, "body" to scan the body
     of the email or "headers" to search all of the headers.
     <MatchString> - a regular expression to find a match in the header or
-    body if the MatchString matches a comma separated list and the CF is a
-    multi value CF then each item in the list is added as a separate value.
+    body. If the MatchString matches a comma separated list and the CF is a
+    multi-value CF then each item in the list is added as a separate value.
     <Postcmd> - a perl code to be evaluated on $value, where $value is
     either $1 or full match text from the match performed with <MatchString>
     <Options> - a string of letters which may control some aspects. Possible
@@ -51,7 +51,10 @@ USAGE
         '*' - (wildcard) The MatchString regex should contain _two_
         capturing groups, the first of which is the CF name, the second of
         which is the value. If this option is given, the <cf-name> field is
-        ignored.
+        ignored. (Supercedes '+'.)
+        '+' - (multiple) The MatchString regex will be applied with the /g
+        option and all matching values will be added to the CF, which should
+        probably be a multi-value CF for best results. (Superceded by '*'.)
 
   Separator
     You can change the separator string (initially "\|") during the template
