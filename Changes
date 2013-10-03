@@ -1,3 +1,7 @@
+3.10    Thu Oct  3 13:48:17 EDT 2013
+* Fix example template to pass the template compiler check
+* Strip leading and trailing spaces when parsing template lines
+
 3.09    Tue Jul 30 20:04:08 PDT 2013
 * Re-release 3.08 aftering fixing PAUSE permissions
 
