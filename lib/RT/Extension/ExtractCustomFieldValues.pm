@@ -15,25 +15,43 @@ our $VERSION = '3.09';
 
 =head1 DESCRIPTION
 
-ExtractCustomFieldValues is based on a scrip action
-"ExtractCustomFieldValues", which can be used to scan incoming emails
-to set values of custom fields.
+ExtractCustomFieldValues provides an "ExtractCustomFieldValues" scrip
+action, which can be used to scan incoming emails to set values of
+custom fields.
 
 =head1 INSTALLATION
 
-    perl Makefile.PL
-    make
-    make install
-    make initdb # first time only, not on upgrades
+=over
 
-When using this extension with RT 3.8, you will need to add
-extension to the Plugins configuration:
+=item C<perl Makefile.PL>
 
-    Set( @Plugins, qw(... RT::Extension::ExtractCustomFieldValues) );
+=item C<make>
 
-If you are upgrading this extension from 3.05 or earlier, you will
-need to read the UPGRADING file after running make install to add 
-the new Scrip Action.
+=item C<make install>
+
+May need root permissions
+
+=item C<make initdb>
+
+Only run this the first time you install this module.
+
+If you run this twice, you may end up with duplicate data
+in your database.
+
+If you are upgrading this module, check for upgrading instructions
+in case changes need to be made to your database.
+
+=item Edit your F</opt/rt4/etc/RT_SiteConfig.pm>
+
+Add this line:
+
+    Set(@Plugins, qw(RT::Extension::ExtractCustomFieldValues));
+
+or add C<RT::Extension::ExtractCustomFieldValues> to your existing C<@Plugins> line.
+
+=item Restart your webserver
+
+=back
 
 =head1 USAGE
 
@@ -48,34 +66,50 @@ where:
 
 =over 4
 
-=item <cf-name> - the name of a custom field (must be created in RT) If this
-field is blank, the match will be run and Postcmd will be executed, but no
-custom field will be updated. Use this if you need to execute other RT code
+=item I<cf-name>
+
+The name of a custom field (must be created in RT).  If this field is
+blank, the match will be run and Postcmd will be executed, but no custom
+field will be updated. Use this if you need to execute other RT code
 based on your match.
 
-=item <Headername> - either a Name of an email header, "body" to scan the body
+=item I<Headername>
+
+Either a Name of an email header, "body" to scan the body
 of the email or "headers" to search all of the headers.
 
-=item <MatchString> - a regular expression to find a match in the header or
-body.  If the MatchString matches a comma separated list and the CF is a
-multi-value CF then each item in the list is added as a separate value.
+=item I<MatchString>
 
-=item <Postcmd>  - a perl code to be evaluated on C<$value>, where C<$value> is
-either $1 or full match text from the match performed with <MatchString>
+A regular expression to find a match in the header or body.  If the
+MatchString matches a comma separated list and the CF is a multi-value
+CF then each item in the list is added as a separate value.
 
-=item <Options> - a string of letters which may control some aspects.  Possible
-options include:
+=item I<Postcmd>
+
+Perl code to be evaluated on C<$value>, where C<$value> is either $1 or
+full match text from the match performed with <MatchString>
+
+=item I<Options>
+
+A string of letters which may control some aspects.  Possible options
+include:
 
 =over 4
 
-=item 'q' - (quiet) Don't record a transaction when adding the custom field value
+=item I<q> - (quiet)
 
-=item '*' - (wildcard) The MatchString regex should contain _two_ capturing
-groups, the first of which is the CF name, the second of which is the value.
-If this option is given, the <cf-name> field is ignored.  (Supercedes '+'.)
+Don't record a transaction when adding the custom field value
 
-=item '+' - (multiple) The MatchString regex will be applied with the /g option
-and all matching values will be added to the CF, which should probably be a
+=item I<*> - (wildcard)
+
+The MatchString regex should contain _two_ capturing groups, the first
+of which is the CF name, the second of which is the value.  If this
+option is given, the <cf-name> field is ignored.  (Supercedes '+'.)
+
+=item I<+> - (multiple)
+
+The MatchString regex will be applied with the /g option and all
+matching values will be added to the CF, which should probably be a
 multi-value CF for best results.  (Superceded by '*'.)
 
 =back
@@ -95,9 +129,8 @@ one of the patterns in the controlling lines.
 =head2 Example and further reading
 
 An example template with some further examples is installed during
-"make install" or "make insert-template". See the
-CustomFieldScannerExample template for examples and further
-documentation.
+C<make initdb>. See the CustomFieldScannerExample template for examples
+and further documentation.
 
 =head1 AUTHOR
 
@@ -109,8 +142,10 @@ and maintained by Best Practical Solutions.
 
 =head1 BUGS
 
-Report bugs using L<http://rt.cpan.org> service, discuss on RT's
-mailing lists, see also L</SUPPORT>
+All bugs should be reported via email to
+L<bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org|mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org>
+or via the web at
+L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCustomFieldValues>.
 
 =head1 SUPPORT
 
