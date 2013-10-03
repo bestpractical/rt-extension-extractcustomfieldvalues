@@ -47,6 +47,8 @@ sub TemplateConfig {
         chomp;
         next if /^#/;
         next if /^\s*$/;
+        s!^\s+!!;
+        s!\s+$!!;
         if (/^Separator=(.+)$/) {
             $Separator = $1;
             next;
