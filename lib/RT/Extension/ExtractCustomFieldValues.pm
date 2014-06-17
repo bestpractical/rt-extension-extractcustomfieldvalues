@@ -9,7 +9,7 @@ RT::Extension::ExtractCustomFieldValues - extract CF values from email headers o
 
 =cut
 
-our $VERSION = '3.10';
+our $VERSION = '3.11';
 
 1;
 
@@ -43,11 +43,16 @@ in case changes need to be made to your database.
 
 =item Edit your F</opt/rt4/etc/RT_SiteConfig.pm>
 
-Add this line:
+If you are using RT 4.2 or greater, add this line:
+
+    Plugin('RT::Extension::ExtractCustomFieldValues');
+
+For RT 4.0, add this line:
 
     Set(@Plugins, qw(RT::Extension::ExtractCustomFieldValues));
 
-or add C<RT::Extension::ExtractCustomFieldValues> to your existing C<@Plugins> line.
+or add C<RT::Extension::ExtractCustomFieldValues> to your existing
+C<@Plugins> line.
 
 =item Restart your webserver
 
@@ -154,7 +159,7 @@ E<lt>sales@bestpractical.comE<gt>.
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2007-2013 by Best Practical Solutions, LLC.
+This software is Copyright (c) 2007-2014 by Best Practical Solutions, LLC.
 
 This is free software, licensed under:
 

@@ -23,7 +23,11 @@ INSTALLATION
         in case changes need to be made to your database.
 
     Edit your /opt/rt4/etc/RT_SiteConfig.pm
-        Add this line:
+        If you are using RT 4.2 or greater, add this line:
+
+            Plugin('RT::Extension::ExtractCustomFieldValues');
+
+        For RT 4.0, add this line:
 
             Set(@Plugins, qw(RT::Extension::ExtractCustomFieldValues));
 
@@ -114,7 +118,7 @@ SUPPORT
     <sales@bestpractical.com>.
 
 LICENSE AND COPYRIGHT
-    This software is Copyright (c) 2007-2013 by Best Practical Solutions,
+    This software is Copyright (c) 2007-2014 by Best Practical Solutions,
     LLC.
 
     This is free software, licensed under:
