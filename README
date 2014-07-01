@@ -8,12 +8,12 @@ DESCRIPTION
     custom fields.
 
 INSTALLATION
-    "perl Makefile.PL"
-    "make"
-    "make install"
+    perl Makefile.PL
+    make
+    make install
         May need root permissions
 
-    "make initdb"
+    make initdb
         Only run this the first time you install this module.
 
         If you run this twice, you may end up with duplicate data in your
@@ -31,7 +31,7 @@ INSTALLATION
 
             Set(@Plugins, qw(RT::Extension::ExtractCustomFieldValues));
 
-        or add "RT::Extension::ExtractCustomFieldValues" to your existing
+        or add RT::Extension::ExtractCustomFieldValues to your existing
         @Plugins line.
 
     Restart your webserver
@@ -94,28 +94,25 @@ USAGE
     of the patterns in the controlling lines.
 
   Example and further reading
-    An example template with some further examples is installed during "make
-    initdb". See the CustomFieldScannerExample template for examples and
+    An example template with some further examples is installed during make
+    initdb. See the CustomFieldScannerExample template for examples and
     further documentation.
 
 AUTHOR
     This extension was originally written by Dirk Pape
     <pape@inf.fu-berlin.de>.
 
-    This version is modified by Best Practical for customer use and
-    maintained by Best Practical Solutions.
+    It is now maintained by Best Practical Solutions, LLC
+    <modules@bestpractical.com>
 
 BUGS
     All bugs should be reported via email to
-    bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org
-    <mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org> or via
-    the web at rt.cpan.org
-    <http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCu
-    stomFieldValues>.
 
-SUPPORT
-    Support requests should be referred to Best Practical
-    <sales@bestpractical.com>.
+        L<bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org|mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org>
+
+    or via the web at
+
+        L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCustomFieldValues>.
 
 LICENSE AND COPYRIGHT
     This software is Copyright (c) 2007-2014 by Best Practical Solutions,

@@ -9,7 +9,7 @@ RT::Extension::ExtractCustomFieldValues - extract CF values from email headers o
 
 =cut
 
-our $VERSION = '3.11';
+our $VERSION = '3.12';
 
 1;
 
@@ -51,8 +51,7 @@ For RT 4.0, add this line:
 
     Set(@Plugins, qw(RT::Extension::ExtractCustomFieldValues));
 
-or add C<RT::Extension::ExtractCustomFieldValues> to your existing
-C<@Plugins> line.
+or add C<RT::Extension::ExtractCustomFieldValues> to your existing C<@Plugins> line.
 
 =item Restart your webserver
 
@@ -142,20 +141,18 @@ and further documentation.
 This extension was originally written by Dirk Pape
 E<lt>pape@inf.fu-berlin.deE<gt>.
 
-This version is modified by Best Practical for customer use
-and maintained by Best Practical Solutions.
+It is now maintained by Best Practical Solutions, LLC
+E<lt>modules@bestpractical.comE<gt>
 
 =head1 BUGS
 
 All bugs should be reported via email to
-L<bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org|mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org>
+
+    L<bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org|mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org>
+
 or via the web at
-L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCustomFieldValues>.
 
-=head1 SUPPORT
-
-Support requests should be referred to Best Practical
-E<lt>sales@bestpractical.comE<gt>.
+    L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCustomFieldValues>.
 
 =head1 LICENSE AND COPYRIGHT
 

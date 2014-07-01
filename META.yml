@@ -3,9 +3,9 @@ abstract: 'extract CF values from email headers or body'
 author:
   - 'This extension was originally written by Dirk Pape'
 build_requires:
-  ExtUtils::MakeMaker: 6.36
+  ExtUtils::MakeMaker: 6.59
 configure_requires:
-  ExtUtils::MakeMaker: 6.36
+  ExtUtils::MakeMaker: 6.59
 distribution_type: module
 dynamic_config: 1
 generated_by: 'Module::Install version 1.08'
@@ -18,6 +18,11 @@ no_index:
   directory:
     - etc
     - inc
+requires:
+  perl: 5.8.3
 resources:
   license: http://opensource.org/licenses/gpl-license.php
-version: '3.11'
+  repository: https://github.com/bestpractical/rt-extension-extractcustomfieldvalues
+version: '3.12'
+x_module_install_rtx_version: 0.34_04
+x_requires_rt: 4.0.0
