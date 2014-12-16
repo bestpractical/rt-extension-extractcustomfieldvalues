@@ -1,7 +1,7 @@
 ---
 abstract: 'extract CF values from email headers or body'
 author:
-  - 'This extension was originally written by Dirk Pape'
+  - 'Best Practical Solutions, LLC <modules@bestpractical.com>'
 build_requires:
   ExtUtils::MakeMaker: 6.59
 configure_requires:

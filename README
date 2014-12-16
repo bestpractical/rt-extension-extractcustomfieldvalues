@@ -99,11 +99,9 @@ USAGE
     further documentation.
 
 AUTHOR
-    This extension was originally written by Dirk Pape
-    <pape@inf.fu-berlin.de>.
+    Best Practical Solutions, LLC <modules@bestpractical.com>
 
-    It is now maintained by Best Practical Solutions, LLC
-    <modules@bestpractical.com>
+    Based on code by Dirk Pape <pape@inf.fu-berlin.de>.
 
 BUGS
     All bugs should be reported via email to
