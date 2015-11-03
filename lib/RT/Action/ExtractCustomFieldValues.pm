@@ -233,9 +233,10 @@ sub ProcessCF {
             Value             => $value,
             RecordTransaction => $args{Options} =~ /q/ ? 0 : 1
         );
+        $msg = '' unless defined $msg;
         $RT::Logger->info( "CustomFieldValue ("
                 . $args{CustomField}->Name
-                . ",$value) added: $id" . ( $msg // '' ) );
+                . ",$value) added: $id $msg" );
     }
 }
 
