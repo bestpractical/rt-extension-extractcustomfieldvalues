@@ -235,7 +235,7 @@ sub ProcessCF {
         );
         $RT::Logger->info( "CustomFieldValue ("
                 . $args{CustomField}->Name
-                . ",$value) added: $id $msg" );
+                . ",$value) added: $id" . ( $msg // '' ) );
     }
 }
 
