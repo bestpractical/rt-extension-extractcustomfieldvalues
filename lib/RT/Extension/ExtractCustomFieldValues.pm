@@ -9,7 +9,7 @@ RT::Extension::ExtractCustomFieldValues - extract CF values from email headers o
 
 =cut
 
-our $VERSION = '3.13';
+our $VERSION = '3.14';
 
 1;
 
