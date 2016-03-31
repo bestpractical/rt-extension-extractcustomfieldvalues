@@ -1,4 +1,6 @@
 3.14 2016-03-28
+ - Copy examples in template into main docs
+ - Avoid log warning when message is undefined
  - Packaging updates
 
 3.13 2014-12-16
