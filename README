@@ -2,6 +2,9 @@ NAME
     RT::Extension::ExtractCustomFieldValues - extract CF values from email
     headers or body
 
+RT VERSION
+    Works with RT 4.0, 4.2, 4.4
+
 DESCRIPTION
     ExtractCustomFieldValues provides an "ExtractCustomFieldValues" scrip
     action, which can be used to scan incoming emails to set values of
@@ -93,10 +96,61 @@ USAGE
     Changing the separator may be necessary, if you want to use a "|" in one
     of the patterns in the controlling lines.
 
-  Example and further reading
-    An example template with some further examples is installed during make
-    initdb. See the CustomFieldScannerExample template for examples and
-    further documentation.
+  Examples
+    For reference, a template with these examples is also installed during
+    make initdb. See the CustomFieldScannerExample template for examples and
+    further documentation. The installed template also makes it easy to cut
+    and paste the examples into your own template.
+
+    1. Put the content of the "X-MI-Test" header into the "testcf" custom
+    field:
+            testcf|X-MI-Test|.*
+
+    2. Scan the body for Host:name and put name into the "bodycf" custom
+    field:
+            bodycf|Body|Host:\s*(\w+)
+
+    3. Scan the "X-MI-IP" header for an IP-Adresse and get the hostname by
+    reverse-resolving it:
+            Hostname|X-MI-IP|\d+\.\d+\.\d+\.\d+|use Socket; ($value) = gethostbyaddr(inet_aton($value),AF_INET);
+
+    4. scan the "CC" header for an many email addresses, and add them to a
+    custom field named "parsedCCs". If "parsedCCs" is a multivalue CF, then
+    this should yield separate values for all email adress found.
+            parsedCCs|CC|.*|$value =~ s/^\s+//; $value =~ s/\s+$//;
+
+    5. Looks for an "Email:" field in the body of the email, then loads up
+    that user and makes them privileged The blank first field means the
+    automatic CustomField setting is not invoked.
+            |Body|Email:\s*(.+)$|my $u = RT::User->new($RT::SystemUser); $u->LoadByEmail($value); $u->SetPrivileged(1)|
+
+    6. Looks for any text of the form "Set CF Name: Value" in the body, and
+    sets the CF named "CF Name" to the given value, which may be multi-line.
+    The '*' option controls the wildcard nature of this example.
+            Separator=!
+            !Body!^Set ([^\n:]*?):\s*((?s).*?)(?:\Z|\n\Z|\n\n)!!*
+
+    7. Looks for the regex anywhere in the headers and stores the match in
+    the AllHeaderSearch CF
+            AllHeaderSearch|Headers|Site:\s*(\w+)
+
+    8. If you need to dynamically build your matching, and want to trigger
+    on headers and body and invode some arbitrary code like example 5
+            Separator=~~
+        {
+            my $action = 'use My::Site; My::Site::SetSiteID( Ticket => $self->TicketObj, Site => $_ );';
+
+            for my $regex (My::Site::ValidRegexps) {
+                for my $from ('headers', 'body') {
+                    $OUT .= join '~~',
+                        '', # CF name
+                        $from,
+                        $regex,
+                        $action;
+                   $OUT .= "\n";
+               }
+           }
+        }
 
 AUTHOR
     Best Practical Solutions, LLC <modules@bestpractical.com>
