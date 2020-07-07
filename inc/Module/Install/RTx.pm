@@ -8,7 +8,7 @@ no warnings 'once';
 
 use Module::Install::Base;
 use base 'Module::Install::Base';
-our $VERSION = '0.37';
+our $VERSION = '0.41';
 
 use FindBin;
 use File::Glob     ();
@@ -53,7 +53,7 @@ sub RTx {
         my @look = @INC;
         unshift @look, grep {defined and -d $_} @try;
         push @look, grep {defined and -d $_}
-            map { ( "$_/rt4/lib", "$_/lib/rt4", "$_/lib" ) } @prefixes;
+            map { ( "$_/rt5/lib", "$_/lib/rt5", "$_/rt4/lib", "$_/lib/rt4", "$_/lib" ) } @prefixes;
         last if eval {local @INC = @look; require RT; $RT::LocalLibPath};
 
         warn
@@ -113,11 +113,29 @@ lexicons ::
 .
     }
 
+    my $remove_files;
+    if( $extra_args->{'remove_files'} ){
+        $self->include('Module::Install::RTx::Remove');
+        our @remove_files;
+        eval { require "etc/upgrade/remove_files" }
+          or print "No remove file located, no files to remove\n";
+        $remove_files = join ",", map {"q(\$(DESTDIR)$plugin_path/$name/$_)"} @remove_files;
+    }
+
     $self->include('Module::Install::RTx::Runtime') if $self->admin;
     $self->include_deps( 'YAML::Tiny', 0 ) if $self->admin;
     my $postamble = << ".";
 install ::
 \t\$(NOECHO) \$(PERL) -Ilib -I"$local_lib_path" -I"$lib_path" -Iinc -MModule::Install::RTx::Runtime -e"RTxPlugin()"
+.
+
+    if( $remove_files ){
+        $postamble .= << ".";
+\t\$(NOECHO) \$(PERL) -MModule::Install::RTx::Remove -e \"RTxRemove([$remove_files])\"
+.
+    }
+
+    $postamble .= << ".";
 \t\$(NOECHO) \$(PERL) -MExtUtils::Install -e \"install({$args})\"
 .
 
@@ -279,4 +297,4 @@ sub _load_rt_handle {
 
 __END__
 
-#line 428
+#line 468
