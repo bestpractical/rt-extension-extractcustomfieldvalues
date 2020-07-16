@@ -13,7 +13,7 @@ Works with RT 4.0, 4.2, 4.4, 5.0
 
 =cut
 
-our $VERSION = '3.14';
+our $VERSION = '3.15';
 
 1;
 
