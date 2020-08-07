@@ -134,6 +134,16 @@ template with:
 Changing the separator may be necessary, if you want to use a "|" in
 one of the patterns in the controlling lines.
 
+=head2 ValueSeparator
+
+You can change the separator string for multi-value customfields (initially
+",") in the template with:
+
+        ValueSeparator=<anyregexp>
+
+Changing the mult-value separator may be necessary since your source may
+use a list of values separated by spaces or ', ' or ';' etc.
+
 =head2 Examples
 
 For reference, a template with these examples is also installed during
