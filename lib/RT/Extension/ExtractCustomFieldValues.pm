@@ -220,13 +220,9 @@ Based on code by Dirk Pape E<lt>pape@inf.fu-berlin.deE<gt>.
 
 =head1 BUGS
 
-All bugs should be reported via email to
+All bugs should be reported via email to: L<bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org|mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org>
 
-    L<bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org|mailto:bug-RT-Extension-ExtractCustomFieldValues@rt.cpan.org>
-
-or via the web at
-
-    L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCustomFieldValues>.
+or via the web at: L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-ExtractCustomFieldValues>.
 
 =head1 LICENSE AND COPYRIGHT
 
