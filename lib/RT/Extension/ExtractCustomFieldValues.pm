@@ -120,6 +120,11 @@ The MatchString regex will be applied with the /g option and all
 matching values will be added to the CF, which should probably be a
 multi-value CF for best results.  (Superceded by '*'.)
 
+=item I<s> - (scrub)
+
+If our only message body is text/html, use this option to convert it
+to plain text before trying to extract values.
+
 =back
 
 =back

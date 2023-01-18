@@ -196,6 +196,10 @@ sub FindContent {
             next if $LastContent eq $content;
             $RT::Logger->debug( "Examining content of body" );
             $LastContent = $content;
+            # If we ended up with just html, maybe convert it to text
+            if ( $args{Options} =~ /s/ && lc $ct eq 'text/html' ) {
+                $content = RT::Interface::Email::ConvertHTMLToText( $content );
+            }
             $args{Callback}->( $content );
         }
     } elsif ( lc $args{Field} eq 'headers' ) {
